@@ -1,0 +1,2187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coral Reefs Sitrep → Nature/Physics Cross-Reference → Innovation Build Lab (Offline-First)</title>
+  <meta name="description" content="A PhD-level, systems-thinking field manual: latest coral reef research cross-referenced with physics + ecological patterns to generate safer, testable innovation pathways. Offline-first, local-only, no telemetry." />
+  <style>
+    /* ============================================================================
+      TOOLTIP: Global styles
+      What: Visual system for long-form reading, parallax sections, collapsibles, and print.
+      How: Pure CSS. No external fonts or dependencies.
+      Outcome: Clean, legible, offline-safe interface with strong hierarchy.
+    ============================================================================ */
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --bg2:#0E1630;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.12);
+      --txt: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --faint: rgba(255,255,255,0.55);
+      --good: rgba(116, 255, 167, 0.95);
+      --warn: rgba(255, 216, 120, 0.95);
+      --bad: rgba(255, 120, 120, 0.95);
+      --accent: rgba(120, 197, 255, 0.95);
+      --accent2: rgba(208, 140, 255, 0.95);
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --radius: 18px;
+      --radius2: 26px;
+      --maxw: 1100px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--txt);
+      background: radial-gradient(1400px 900px at 15% 10%, rgba(120,197,255,0.18), transparent 60%),
+                  radial-gradient(1200px 800px at 85% 15%, rgba(208,140,255,0.12), transparent 60%),
+                  radial-gradient(1200px 900px at 45% 90%, rgba(116,255,167,0.08), transparent 70%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1) 35%, var(--bg2) 100%);
+      overflow-x:hidden;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* ============================================================================
+      TOOLTIP: Splash screen
+      What: Animated intro that can be skipped; sets tone and loads cached state.
+      How: Fixed overlay with CSS animation; dismissed on user interaction or after init.
+      Outcome: Smooth onboarding + no blocking on slow devices.
+    ============================================================================ */
+    #splash{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1000px 700px at 50% 40%, rgba(120,197,255,0.14), transparent 60%),
+                  linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.70));
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+    .splashCard{
+      width:min(880px, 92vw);
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background: rgba(10,14,30,0.62);
+      box-shadow: var(--shadow);
+      padding: 22px 20px;
+      position:relative;
+      overflow:hidden;
+    }
+    .splashHeader{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; gap:14px; align-items:center;
+    }
+    .logoOrb{
+      width:54px; height:54px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,197,255,0.55) 30%, rgba(208,140,255,0.22) 62%, rgba(0,0,0,0.0) 70%),
+                  radial-gradient(circle at 55% 65%, rgba(116,255,167,0.25), transparent 55%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 70px rgba(120,197,255,0.18);
+      position:relative;
+    }
+    .logoOrb::after{
+      content:"";
+      position:absolute; inset:-40px;
+      background: conic-gradient(from 180deg, rgba(120,197,255,0.0), rgba(120,197,255,0.26), rgba(208,140,255,0.18), rgba(120,197,255,0.0));
+      animation: spin 6.4s linear infinite;
+      mask: radial-gradient(circle, rgba(0,0,0,0) 55%, rgba(0,0,0,1) 62%, rgba(0,0,0,0) 72%);
+      pointer-events:none;
+    }
+    @keyframes spin { to{ transform: rotate(360deg); } }
+
+    .splashTitle{
+      font-size: 1.08rem;
+      letter-spacing: 0.2px;
+      margin:0;
+    }
+    .splashSub{
+      margin:6px 0 0 0;
+      color: var(--muted);
+      line-height:1.35;
+      font-size: 0.96rem;
+    }
+    .splashActions{
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      margin-top: 14px;
+      flex-wrap:wrap;
+    }
+    button, .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--txt);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing:0.2px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    button:hover, .btn:hover{ background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); }
+    button:active{ transform: translateY(1px); }
+    .btnPrimary{ background: rgba(120,197,255,0.16); border-color: rgba(120,197,255,0.35); }
+    .btnPrimary:hover{ background: rgba(120,197,255,0.22); }
+    .btnDanger{ background: rgba(255,120,120,0.13); border-color: rgba(255,120,120,0.28); }
+
+    .splashMeta{
+      margin-top: 12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(255,255,255,0.10);
+      padding-top:12px;
+    }
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius:999px;
+      padding: 6px 10px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 0 22px rgba(120,197,255,0.22);
+    }
+    .dot.ok{ background: rgba(116,255,167,0.75); }
+    .dot.warn{ background: rgba(255,216,120,0.80); }
+    .dot.bad{ background: rgba(255,120,120,0.75); }
+
+    /* ============================================================================
+      TOOLTIP: Sticky nav / TOC
+      What: Persistent navigation + search + quick actions.
+      How: position:sticky with responsive layout.
+      Outcome: Readers can jump around long content quickly.
+    ============================================================================ */
+    header{
+      position:sticky; top:0; z-index:1000;
+      background: rgba(7,10,18,0.60);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .navWrap{
+      max-width: var(--maxw);
+      margin:0 auto;
+      padding: 10px 14px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .navLeft{ display:flex; gap:12px; align-items:center; min-width: 270px; }
+    .miniLogo{
+      width:34px; height:34px; border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,197,255,0.55) 35%, rgba(208,140,255,0.22) 68%, rgba(0,0,0,0.0) 73%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 40px rgba(120,197,255,0.14);
+    }
+    .navTitle{
+      display:flex; flex-direction:column;
+      line-height: 1.1;
+    }
+    .navTitle strong{ font-size: 0.98rem; }
+    .navTitle span{ font-size: 0.80rem; color: var(--muted); }
+
+    .navMid{
+      display:flex; gap:10px; align-items:center; justify-content:center;
+      flex: 1 1 420px;
+      min-width: 250px;
+    }
+    .searchBox{
+      flex: 1 1 420px;
+      display:flex; gap:8px; align-items:center;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 8px 10px;
+      max-width: 680px;
+    }
+    .searchBox input{
+      flex:1;
+      background: transparent;
+      border:none;
+      outline:none;
+      color: var(--txt);
+      font-size: 0.95rem;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid rgba(255,255,255,0.14);
+      color: var(--faint);
+      user-select:none;
+    }
+
+    .navRight{
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      min-width: 260px;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Main layout
+      What: Parallax sections + content cards.
+      How: Background layers + intersection-based glow.
+      Outcome: Immersive reading, not gimmick overload.
+    ============================================================================ */
+    main{ max-width: var(--maxw); margin: 0 auto; padding: 18px 14px 120px 14px; }
+    .hero{
+      position:relative;
+      margin-top: 14px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .heroInner{
+      padding: 22px 18px 18px 18px;
+      display:grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 920px){
+      .heroInner{ grid-template-columns: 1fr; }
+      .navLeft, .navRight{ min-width:unset; }
+    }
+
+    .hero h1{
+      margin:0;
+      font-size: 1.55rem;
+      letter-spacing: 0.2px;
+    }
+    .hero p{
+      margin: 10px 0 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 1.02rem;
+    }
+    .heroBadges{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin-top: 12px;
+    }
+    .badge{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      display:inline-flex; gap:8px; align-items:center;
+      user-select:none;
+    }
+    .badge strong{ color: var(--txt); font-weight: 750; }
+    .badge .bDot{ width:8px; height:8px; border-radius:999px; background: rgba(255,255,255,0.25); }
+    .badge .bDot.a{ background: rgba(120,197,255,0.75); }
+    .badge .bDot.g{ background: rgba(116,255,167,0.75); }
+    .badge .bDot.w{ background: rgba(255,216,120,0.78); }
+
+    .sideCard{
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.16);
+      border-radius: 18px;
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .sideCard h3{ margin:0; font-size: 1.0rem; }
+    .sideCard p{ margin: 8px 0 0 0; color: var(--muted); line-height: 1.45; font-size: 0.95rem; }
+    .sideCard .row{
+      margin-top: 10px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Collapsibles
+      What: details/summary sections for deep dives.
+      How: HTML <details> plus CSS polish.
+      Outcome: “Exhaustive” without overwhelming.
+    ============================================================================ */
+    details{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px 12px;
+      margin: 14px 0;
+    }
+    details[open]{ background: rgba(255,255,255,0.055); }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .chev{
+      width: 12px; height: 12px;
+      border-right: 2px solid rgba(255,255,255,0.65);
+      border-bottom: 2px solid rgba(255,255,255,0.65);
+      transform: rotate(-45deg);
+      transition: transform .18s ease;
+      margin-left:auto;
+      opacity: 0.9;
+    }
+    details[open] .chev{ transform: rotate(45deg); }
+
+    /* ============================================================================
+      TOOLTIP: Section cards
+      What: Reusable card blocks for frameworks, patterns, and build recipes.
+      How: Grid + border + subtle gradients.
+      Outcome: Consistent reading flow and easy future expansion.
+    ============================================================================ */
+    section{
+      margin-top: 22px;
+      scroll-margin-top: 92px;
+    }
+    .secHead{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin: 8px 0 10px 0;
+    }
+    .secHead h2{
+      margin:0;
+      font-size: 1.22rem;
+      letter-spacing:0.2px;
+    }
+    .secHead .secMeta{
+      color: var(--muted);
+      font-size: 0.88rem;
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+    .card{
+      grid-column: span 12;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.24);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card h3{ margin:0; font-size: 1.02rem; }
+    .card p{ margin: 8px 0 0 0; color: var(--muted); line-height: 1.55; }
+    .card ul{ margin: 10px 0 0 18px; color: var(--muted); line-height: 1.5; }
+    .card li{ margin: 6px 0; }
+
+    .c6{ grid-column: span 6; }
+    .c7{ grid-column: span 7; }
+    .c5{ grid-column: span 5; }
+    .c4{ grid-column: span 4; }
+    .c8{ grid-column: span 8; }
+    @media (max-width: 920px){
+      .c6,.c7,.c5,.c4,.c8{ grid-column: span 12; }
+    }
+
+    .callout{
+      border-left: 3px solid rgba(120,197,255,0.70);
+      padding: 10px 12px;
+      background: rgba(120,197,255,0.08);
+      border-radius: 14px;
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .mini{
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      color: rgba(255,255,255,0.78);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 10px 10px;
+      overflow:auto;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    /* ============================================================================
+      TOOLTIP: HUD + Constellation visualizer
+      What: Gamified progress + local-only “state constellation” to reflect reading/build actions.
+      How: Fixed HUD + Canvas overlay. Stored in IndexedDB.
+      Outcome: Gentle motivation + “system state” glance without surveillance.
+    ============================================================================ */
+    #hud{
+      position:fixed;
+      right: 14px; bottom: 14px;
+      width: min(420px, calc(100vw - 28px));
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      background: rgba(0,0,0,0.40);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      z-index: 1200;
+    }
+    #hudHeader{
+      padding: 10px 12px;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    #hudHeader strong{ font-size: 0.95rem; letter-spacing:0.2px; }
+    #hudHeader .hudRight{ display:flex; gap:8px; align-items:center; }
+    #hudBody{
+      padding: 10px 12px 12px 12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hudBox{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      min-height: 74px;
+    }
+    .hudLabel{ color: var(--muted); font-size: 0.82rem; }
+    .hudValue{ margin-top: 6px; font-family: var(--mono); font-size: 0.96rem; }
+    .bar{
+      margin-top: 8px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      overflow:hidden;
+    }
+    .bar > i{
+      display:block; height:100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(120,197,255,0.75), rgba(208,140,255,0.55), rgba(116,255,167,0.55));
+      border-radius: 999px;
+    }
+    #hudCanvasWrap{
+      grid-column: span 2;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.22);
+      padding: 8px;
+      position:relative;
+    }
+    #constellation{
+      width: 100%;
+      height: 180px;
+      display:block;
+      border-radius: 12px;
+    }
+    .hudFooter{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding: 10px 12px 12px 12px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      align-items:center; justify-content:space-between;
+    }
+    .tinyBtn{ padding: 8px 10px; border-radius: 14px; font-weight: 750; font-size: 0.88rem; }
+    .muted{ color: var(--muted); }
+
+    /* ============================================================================
+      TOOLTIP: Search highlighting
+      What: Marks matches and dims non-matches.
+      How: JS toggles data attributes.
+      Outcome: Quick scanning in dense text.
+    ============================================================================ */
+    mark{
+      background: rgba(255,216,120,0.22);
+      color: var(--txt);
+      border:1px solid rgba(255,216,120,0.18);
+      padding: 0 3px;
+      border-radius: 6px;
+    }
+    [data-filtered="out"]{
+      opacity: 0.18;
+      filter: saturate(0.6);
+      transition: opacity .15s ease;
+    }
+    [data-filtered="in"]{
+      opacity: 1;
+      transition: opacity .15s ease;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Footer + print stylesheet
+      What: Visible safety note; clean printing.
+      How: @media print hides HUD/nav and flattens colors.
+      Outcome: Shareable PDFs without UI clutter.
+    ============================================================================ */
+    footer{
+      margin-top: 30px;
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+      max-width: var(--maxw);
+      margin-left:auto; margin-right:auto;
+    }
+    .footGrid{
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+    @media(max-width: 920px){ .footGrid{ grid-template-columns: 1fr; } }
+
+    .hr{ height:1px; background: rgba(255,255,255,0.10); margin: 12px 0; }
+
+    .noscript{
+      border:1px solid rgba(255,216,120,0.22);
+      background: rgba(255,216,120,0.08);
+      border-radius: 18px;
+      padding: 12px;
+      margin: 12px 0 0 0;
+      color: var(--muted);
+    }
+
+    @media print{
+      header, #hud, #splash { display:none !important; }
+      body{ background:#fff; color:#000; }
+      .hero, .card, details, .sideCard{ box-shadow:none; background:#fff; border-color:#bbb; }
+      a{ color:#000; text-decoration:underline; }
+      .badge, .pill{ border-color:#bbb; background:#fff; }
+      .mini{ background:#fff; border-color:#bbb; color:#000; }
+      mark{ background:#ff0; border:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!--
+Zero-Harm + Anti-Inversion note:
+This document is designed to support safe, transparent, local-first learning and innovation.
+It avoids coercive “do X to Y” instructions, avoids hidden telemetry, and encourages peer review, measurement, and ethics gates.
+All data stays on-device unless you explicitly export it.
+-->
+
+<div id="splash" role="dialog" aria-modal="true" aria-label="Welcome">
+  <div class="splashCard">
+    <div class="splashHeader">
+      <div class="brand">
+        <div class="logoOrb" aria-hidden="true"></div>
+        <div>
+          <h2 class="splashTitle">Coral Reefs: Sitrep → Physics/Nature Synthesis → Innovation Build Lab 🪸🧠</h2>
+          <p class="splashSub">
+            Offline-first field manual that cross-references recent research with ecological patterns and physics to generate
+            <em>testable, safer</em> solution pathways. Your notes + progress stay on your device only.
+          </p>
+        </div>
+      </div>
+      <div class="pill" title="Local-only state; no tracking">
+        <span class="dot ok" id="statusDot"></span>
+        <span id="statusText">Initializing local storage…</span>
+      </div>
+    </div>
+
+    <div class="splashActions">
+      <button class="btnPrimary" id="btnEnter">Enter</button>
+      <button id="btnSkipAnim" class="tinyBtn" title="Disables splash next time (saved locally)">Disable splash</button>
+      <button id="btnResetAll" class="btnDanger tinyBtn" title="Wipes local notes, preferences, and HUD stats">Reset local data</button>
+    </div>
+
+    <div class="splashMeta">
+      <div class="pill" title="Works without internet after first load">
+        <span class="dot warn"></span>
+        <span>Offline-first • Service Worker cache</span>
+      </div>
+      <div class="pill" title="Innovation focus">
+        <span class="dot"></span>
+        <span>Physics ↔ Ecology ↔ Engineering</span>
+      </div>
+      <div class="pill" title="Safety gates built in">
+        <span class="dot ok"></span>
+        <span>Zero-harm guardrails</span>
+      </div>
+    </div>
+    <noscript>
+      <div class="noscript">
+        JavaScript is disabled. You can still read everything, but search, offline caching, and local notes won’t work.
+        For full offline-first features, enable JavaScript.
+      </div>
+    </noscript>
+  </div>
+</div>
+
+<header>
+  <div class="navWrap">
+    <div class="navLeft">
+      <div class="miniLogo" aria-hidden="true"></div>
+      <div class="navTitle">
+        <strong>Coral Reef Innovation Sitrep</strong>
+        <span>Research × physics × ecology • local-only</span>
+      </div>
+    </div>
+
+    <div class="navMid">
+      <div class="searchBox" title="Client-side search. Tip: press / to focus">
+        <span class="kbd">/</span>
+        <input id="search" type="search" placeholder="Search: DHW, refugia, symbiont, hydrodynamics, shading, restoration…" autocomplete="off" />
+        <button id="btnClear" class="tinyBtn" title="Clear search">Clear</button>
+      </div>
+    </div>
+
+    <div class="navRight">
+      <button class="tinyBtn" data-jump="#toc" title="Jump to Table of Contents">TOC</button>
+      <button class="tinyBtn" data-jump="#build" title="Jump to the Build Lab">Build Lab</button>
+      <button class="tinyBtn" data-jump="#sources" title="Jump to Sources">Sources</button>
+      <button class="tinyBtn" id="btnExport" title="Export your local notes + HUD stats as a JSON file">Export</button>
+      <label class="pill" style="cursor:pointer" title="Save preference locally">
+        <input id="togReduce" type="checkbox" style="transform:scale(1.1)" />
+        Reduce motion
+      </label>
+    </div>
+  </div>
+</header>
+
+<main>
+  <article class="hero" id="top">
+    <div class="heroInner">
+      <div>
+        <h1>State of Coral Reefs: what the latest science implies, and how to invent responsibly 🪸⚙️</h1>
+        <p>
+          The current era is defined by <strong>recurring marine heatwaves</strong> driving mass bleaching at global scale, compressing recovery windows and
+          shifting reef ecosystems toward simpler states. This manual cross-references
+          <strong>recent monitoring + peer-reviewed research</strong> with patterns found in nature (refugia, redundancy, symbiosis, edge effects)
+          and relevant physics (heat transfer, boundary layers, turbulence, radiative forcing, diffusion) to generate
+          <strong>innovative solution pathways</strong> that others can build on.
+        </p>
+        <div class="heroBadges">
+          <span class="badge"><span class="bDot a"></span><strong>Heat stress</strong> as the primary near-term driver</span>
+          <span class="badge"><span class="bDot w"></span><strong>Recovery windows</strong> shrinking</span>
+          <span class="badge"><span class="bDot g"></span><strong>Resilience</strong> exists—needs leverage</span>
+          <span class="badge"><span class="bDot a"></span><strong>Local-only</strong> notes & stats</span>
+        </div>
+
+        <div class="callout">
+          <strong>Innovation stance:</strong> treat reefs as a coupled system (biology + fluid dynamics + chemistry + human infrastructure). Favor interventions that
+          (1) buy time, (2) reduce compounding stress, (3) scale ethically, and (4) are measurable.
+        </div>
+      </div>
+
+      <aside class="sideCard">
+        <h3>Quick sitrep (as of recent global monitoring)</h3>
+        <p>
+          NOAA and ICRI confirmed the <strong>Fourth Global Coral Bleaching Event</strong> (April 15, 2024).
+          NOAA Coral Reef Watch reports bleaching-level heat stress affecting a large share of global reef area over the 2023–2025 period.
+        </p>
+        <div class="row">
+          <a class="btn btnPrimary" href="#sitrep">Go to sitrep</a>
+          <a class="btn" href="#patterns">Go to patterns</a>
+          <a class="btn" href="#build">Go to build lab</a>
+        </div>
+        <div class="mini" aria-label="Local note">
+          <strong>Local note (saved on-device):</strong><br/>
+          Use the Build Lab to draft your own “reef intervention hypothesis” with measurement gates and ethics gates.
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <section id="toc">
+    <div class="secHead">
+      <h2>Table of contents</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Jump-links</span>
+        <span class="pill"><span class="dot"></span>Collapsibles for depth</span>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <h3>1) Sitrep: what’s happening</h3>
+        <ul>
+          <li><a href="#sitrep">Heat stress, DHW, bleaching scale, regional examples</a></li>
+          <li><a href="#mechanisms">Mechanisms: symbiosis failure, energy budgets, disease coupling</a></li>
+          <li><a href="#constraints">Constraints: scaling, uncertainty, and failure modes</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>2) Nature + physics patterns</h3>
+        <ul>
+          <li><a href="#patterns">Refugia, redundancy, pulses, edge effects, mycelial logic</a></li>
+          <li><a href="#physics">Heat transfer, boundary layers, turbulence, optics, carbonate chemistry</a></li>
+          <li><a href="#design">Design principles: “borrowed” from ecosystems</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>3) Innovation pathways</h3>
+        <ul>
+          <li><a href="#pathways">Portfolio of interventions (low → high risk)</a></li>
+          <li><a href="#recipes">Build recipes (prototype → field pilot)</a></li>
+          <li><a href="#measurement">Measurement, verification, and “reality checks”</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>4) Build lab + local notes</h3>
+        <ul>
+          <li><a href="#build">Hypothesis builder + checklists</a></li>
+          <li><a href="#notebook">Local notebook (IndexedDB)</a></li>
+          <li><a href="#sources">Sources (recent, primary where possible)</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="sitrep">
+    <div class="secHead">
+      <h2>1) Sitrep: latest monitoring + research signals</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot warn"></span>Heat-driven volatility</span>
+        <span class="pill"><span class="dot"></span>DHW as a shared language</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c7">
+        <h3>Global signal: recurring heat stress is now “background,” not anomaly</h3>
+        <p>
+          In April 2024, NOAA (with ICRI) confirmed the planet entered the <strong>Fourth Global Coral Bleaching Event</strong>.
+          NOAA Coral Reef Watch continues to publish status updates and heat-stress coverage across global reef areas.
+          The practical meaning: reefs increasingly face <strong>insufficient recovery time</strong> between heat shocks.
+        </p>
+        <details>
+          <summary>Why DHW (Degree Heating Weeks) matters, physically <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            DHW is an integrated metric: it combines <em>magnitude</em> and <em>duration</em> of temperature anomaly above a local threshold.
+            That’s important because bleaching is not triggered only by peak temperature—it's driven by time-integrated stress,
+            analogous to a “thermal dose.” In engineering terms: think of it as <strong>cumulative damage</strong> rather than instantaneous load.
+          </p>
+          <div class="callout">
+            Nature pattern: organisms can sometimes survive short spikes but fail under moderate stress held too long—like plants under prolonged drought.
+          </div>
+        </details>
+      </div>
+
+      <div class="card c5">
+        <h3>Regional example: extreme marine heatwaves can reach lethal “dose”</h3>
+        <p>
+          Recent reporting highlights DHW values reaching very high levels during prolonged marine heatwaves.
+          These events are increasingly widespread and persistent, with severe outcomes in some regions.
+        </p>
+        <details>
+          <summary>Why some reefs survive better than expected <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            Resilience can appear in “thermal refugia” or in corals/symbiont assemblages adapted to high variability.
+            Example research on potential refugia shows cases where corals persist without bleaching even during exceptional heatwaves,
+            implying mechanisms worth emulating or protecting (e.g., symbiont performance, energy reserves, local circulation).
+          </p>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>Research coordination signal: solutions require cross-scale thinking</h3>
+        <p>
+          Recent synthesis work calls for coordinated research directions: mechanistic understanding, improved monitoring, and
+          realistic solution development that accounts for climate forcing, local stressors, and ecological feedbacks.
+        </p>
+        <div class="mini">
+          Key theme: “interventions” are not magic spells—each has scaling limits, risks, and measurement needs.
+          The build lab below treats interventions like engineering systems with safety and verification gates.
+        </div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Primary-source anchors (quick links) <span class="chev" aria-hidden="true"></span></summary>
+      <ul>
+        <li><a target="_blank" rel="noopener" href="https://www.noaa.gov/news-release/noaa-confirms-4th-global-coral-bleaching-event">NOAA press release: 4th global bleaching event (Apr 15, 2024)</a></li>
+        <li><a target="_blank" rel="noopener" href="https://icriforum.org/4gbe/">ICRI: Fourth Global Coral Bleaching Event page (Apr 2024)</a></li>
+        <li><a target="_blank" rel="noopener" href="https://coralreefwatch.noaa.gov/satellite/research/coral_bleaching_report.php">NOAA Coral Reef Watch: current global bleaching status updates</a></li>
+        <li><a target="_blank" rel="noopener" href="https://academic.oup.com/bioscience/article/75/7/585/8185301">BioScience (2025): future of coral bleaching research</a></li>
+      </ul>
+    </details>
+  </section>
+
+  <section id="mechanisms">
+    <div class="secHead">
+      <h2>2) Mechanisms: where physics meets the holobiont</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Symbiosis</span>
+        <span class="pill"><span class="dot warn"></span>Energy budgets</span>
+        <span class="pill"><span class="dot"></span>Microbiome</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Bleaching = energy crisis + oxidative stress cascade</h3>
+        <p>
+          Corals rely on photosynthetic symbionts (Symbiodiniaceae). Heat stress disrupts photosynthesis and elevates reactive oxygen species,
+          triggering breakdown of the partnership. Once symbiont productivity is lost, the coral’s energy budget collapses:
+          less growth, weaker immunity, higher disease risk, and lower reproductive output.
+        </p>
+        <div class="callout">
+          Physics analogy: a power grid losing generation during peak demand. The failure is not “one broken wire” but a systemic imbalance.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Symbiont engineering: shifting the weakest link (carefully)</h3>
+        <p>
+          Reviews and experiments suggest that improving or selecting for heat-tolerant photosymbionts can increase thermal tolerance in some coral hosts.
+          Approaches include experimental evolution of symbionts and selective breeding/assisted evolution of corals.
+        </p>
+        <details>
+          <summary>Nature pattern: “training in variability” builds tolerance <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            Many biological systems adapt to fluctuating environments by widening operating ranges (heat-shock proteins, membrane remodeling,
+            alternative metabolic pathways). Evidence that corals from variable-temperature habitats can show higher heat tolerance suggests
+            a general pattern: <strong>variability can be a tutor</strong> (within limits).
+          </p>
+        </details>
+      </div>
+
+      <div class="card c6">
+        <h3>Hydrodynamics: larval restoration scaling is a flow problem</h3>
+        <p>
+          Upscaling larval-based restoration is constrained by reef-scale currents and mixing: larvae are largely passive compared to reef flow speeds.
+          That makes delivery, retention, and settlement as much a fluid dynamics design task as a biology task.
+        </p>
+        <details>
+          <summary>Physics pattern: retention structures in turbulent flow <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            In rivers and coastal zones, deposition and retention depend on eddies, boundary-layer thickness, roughness elements,
+            and time spent in suitable microhabitats. For reefs, that implies: design larval delivery systems that exploit
+            <strong>recirculation zones</strong> and reduce advective loss.
+          </p>
+        </details>
+      </div>
+
+      <div class="card c6">
+        <h3>Microbiome interventions: probiotics are promising but context-sensitive</h3>
+        <p>
+          Probiotic concepts (including Symbiodiniaceae-focused approaches) show evidence of reduced bleaching-related mortality under some conditions,
+          but scaling requires careful understanding of stability, host regulation, and unintended ecological effects.
+        </p>
+        <div class="callout">
+          Ecology rule: adding an organism is never “just adding an organism.” It’s adding a node to a network—expect network effects.
+        </div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Key recent technical sources (examples) <span class="chev" aria-hidden="true"></span></summary>
+      <ul>
+        <li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/science/article/pii/S0966842X24001392">Trends in Microbiology review (2024): experimentally evolved photosymbionts for reef restoration</a></li>
+        <li><a target="_blank" rel="noopener" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11473779/">Open-access (2024): selective breeding enhances coral heat tolerance</a></li>
+        <li><a target="_blank" rel="noopener" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11973625/">Open-access (2025): reef-scale hydrodynamics for scaling larval restoration</a></li>
+        <li><a target="_blank" rel="noopener" href="https://coralwatch.org/wp-content/uploads/2023/11/2020_Morgans-etal-Symbiodiniaceae-probiotics-for-use-in-bleaching-recovery.pdf">Review (2020): Symbiodiniaceae probiotics for bleaching recovery (background)</a></li>
+      </ul>
+    </details>
+  </section>
+
+  <section id="constraints">
+    <div class="secHead">
+      <h2>3) Constraints & failure modes (so inventions don’t become self-sabotage)</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot warn"></span>Scale limits</span>
+        <span class="pill"><span class="dot bad"></span>Unintended consequences</span>
+        <span class="pill"><span class="dot ok"></span>Measurable wins</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Constraint A: global forcing sets the “ceiling”</h3>
+        <p>
+          Climate-driven heat stress is the dominant large-scale driver. Many interventions can buy time locally,
+          but cannot substitute for stabilizing ocean temperatures at planetary scale.
+        </p>
+        <div class="mini">Design implication: build portfolios that include both mitigation (root cause) and adaptation (buy time).</div>
+      </div>
+
+      <div class="card c6">
+        <h3>Constraint B: ecological networks punish naive optimizations</h3>
+        <p>
+          Reefs are multi-species networks. A solution that helps one component may harm another (e.g., shading that reduces heat
+          but also reduces photosynthesis; microbiome changes that destabilize other relationships).
+        </p>
+        <div class="callout">
+          Nature pattern: ecosystems prefer “satisficing” across many constraints instead of maximizing one metric to the moon.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Constraint C: scaling is usually a logistics + governance problem</h3>
+        <p>
+          Larval restoration, nurseries, monitoring, and water-quality interventions depend on permitting, local capacity, and long-term stewardship.
+          Innovations that reduce cost, complexity, and expertise requirements can matter as much as biological breakthroughs.
+        </p>
+      </div>
+
+      <div class="card c6">
+        <h3>Constraint D: measurement must track “function,” not just “cover”</h3>
+        <p>
+          “Coral cover” is important, but reef function includes structural complexity, recruitment, herbivory balance, fish biomass,
+          disease prevalence, and storm/erosion buffering. Solve for function.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="patterns">
+    <div class="secHead">
+      <h2>4) Patterns from ecology & nature that translate into solution architecture</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Refugia</span>
+        <span class="pill"><span class="dot"></span>Redundancy</span>
+        <span class="pill"><span class="dot"></span>Pulses</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Pattern 1: Refugia as “buffered microclimates”</h3>
+        <p>
+          Nature preserves diversity by maintaining pockets where conditions stay within tolerable ranges:
+          upwelling zones, shaded canyons, groundwater-fed streams. For reefs, refugia can come from
+          currents, depth gradients, turbidity regimes, or local mixing. Protecting/reforcing refugia is a high-leverage strategy.
+        </p>
+        <div class="callout">
+          Build translation: map refugia → prioritize as broodstock sources → connect via larval corridors.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Pattern 2: Redundancy beats fragility</h3>
+        <p>
+          Ecosystems rarely rely on a single pathway. They use redundancy (multiple species, multiple functions).
+          For intervention design: avoid single points of failure—use layered strategies (water quality + herbivores + targeted restoration).
+        </p>
+      </div>
+
+      <div class="card c6">
+        <h3>Pattern 3: Pulsed subsidies can rescue systems</h3>
+        <p>
+          In ecology, short-term resource pulses (nutrients, freshwater, food influx) can determine survival during stress windows.
+          For reefs, “pulses” could be targeted actions during forecast heat events: temporary shading, localized cooling where feasible,
+          or rapid-response disease management—applied only when thresholds are crossed.
+        </p>
+        <div class="mini">Design rule: use forecasts + thresholds to trigger pulsed actions; avoid permanent interventions that shift baseline ecology.</div>
+      </div>
+
+      <div class="card c6">
+        <h3>Pattern 4: Edge effects & connectivity</h3>
+        <p>
+          Edges between habitats often drive recruitment and resilience. Reefs depend on connectivity for larval supply.
+          That implies interventions should be designed as networks, not isolated “project dots.”
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="physics">
+    <div class="secHead">
+      <h2>5) Physics translation layer: the “knobs” you can actually turn</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Heat</span>
+        <span class="pill"><span class="dot"></span>Flow</span>
+        <span class="pill"><span class="dot"></span>Light</span>
+        <span class="pill"><span class="dot"></span>Chemistry</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Heat transfer: boundary layers govern microclimate</h3>
+        <p>
+          Corals experience water temperature and flow at millimeter scales. The thickness of the boundary layer controls
+          how fast heat and gases exchange. Increased flow can thin boundary layers, improving heat and oxygen exchange (but can also raise metabolic demand).
+        </p>
+        <details>
+          <summary>Innovation hook: micro-roughness & passive mixing <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            Reefs themselves are roughness elements that generate turbulence and micro-eddies.
+            Artificial structures can be designed to create <strong>beneficial mixing</strong> that reduces thermal stagnation
+            without needing powered systems. Think “passive ventilation,” underwater.
+          </p>
+        </details>
+      </div>
+
+      <div class="card c6">
+        <h3>Radiation & optics: reduce heat load without starving photosynthesis</h3>
+        <p>
+          Heat stress is amplified by solar radiation. Shading can help, but too much shade reduces photosynthetic energy.
+          The trick is spectral/temporal targeting: block the most heating wavelengths or shade during peak hours only.
+        </p>
+        <div class="callout">
+          Physics pattern: selective filters beat blankets. “Smart shade” > “perma-dark.”
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Hydrodynamics: larvae are passive particles in a complex flow field</h3>
+        <p>
+          Larval delivery success is dominated by advection, diffusion, and settlement microhabitats.
+          Reef-scale hydrodynamics research points toward leveraging currents rather than fighting them.
+        </p>
+        <details>
+          <summary>Innovation hook: “larval retention geometry” <span class="chev" aria-hidden="true"></span></summary>
+          <p>
+            Build low-cost devices or structures that increase residence time (eddies, baffles, roughness gradients),
+            and provide settlement cues (texture + chemistry). Treat it like designing a particle trap that still respects reef ecology.
+          </p>
+        </details>
+      </div>
+
+      <div class="card c6">
+        <h3>Carbonate chemistry: calcification is a long-term limiter</h3>
+        <p>
+          Acidification reduces carbonate availability and can slow skeletal growth.
+          Interventions that improve local water quality and reduce other stressors can help corals allocate energy to calcification,
+          but chemistry trends remain a global constraint.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="design">
+    <div class="secHead">
+      <h2>6) Design principles for reef interventions (ecology-grade engineering)</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Buildable</span>
+        <span class="pill"><span class="dot warn"></span>Verifiable</span>
+        <span class="pill"><span class="dot"></span>Ethical scaling</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c4">
+        <h3>Principle: “Do no network harm”</h3>
+        <p>
+          Model your change as a network perturbation. Ask: what second-order effects might appear?
+          Build monitoring for them from day one.
+        </p>
+      </div>
+      <div class="card c4">
+        <h3>Principle: Triggered, not constant</h3>
+        <p>
+          Prefer threshold-triggered actions (during forecast heat stress) over permanent manipulations.
+          Nature survives via timing.
+        </p>
+      </div>
+      <div class="card c4">
+        <h3>Principle: Redundancy + graceful failure</h3>
+        <p>
+          If your device fails, it must fail safe: no entanglement hazards, no toxin leaching, no habitat damage.
+        </p>
+      </div>
+
+      <div class="card c6">
+        <h3>Principle: “Refugia first” portfolio</h3>
+        <p>
+          Protect and connect refugia; treat them as seed banks. Use broodstock, larval corridors, and governance to scale.
+        </p>
+        <div class="mini">Practical: prioritize sites with observed resistance/recovery; then treat interventions as multipliers, not replacements.</div>
+      </div>
+      <div class="card c6">
+        <h3>Principle: Couple biology with logistics</h3>
+        <p>
+          Many “good ideas” fail because they require rare expertise or expensive equipment. Innovation that lowers the barrier
+          (low-cost larval delivery, simpler monitoring) can scale faster.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="pathways">
+    <div class="secHead">
+      <h2>7) Innovation pathways (stackable, from low-risk to high-risk)</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Start low-risk</span>
+        <span class="pill"><span class="dot warn"></span>Escalate with evidence</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Pathway A (Low-risk, high leverage): water-quality + herbivory stabilization</h3>
+        <p>
+          Reduce nutrient/sediment stress so corals retain energy for recovery and calcification.
+          This is the unsexy backbone—often the best ROI for resilience.
+        </p>
+        <ul>
+          <li>Stormwater and coastal runoff control</li>
+          <li>Protect herbivores (prevent algal takeover)</li>
+          <li>Rapid response to acute pollution events</li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Pathway B: refugia mapping + connectivity design</h3>
+        <p>
+          Use temperature/flow patterns and observed survival to identify refugia. Then connect management around larval supply networks.
+        </p>
+        <ul>
+          <li>Thermal refugia prioritization (depth, currents, mixing)</li>
+          <li>Broodstock protection + genebank planning</li>
+          <li>Network-based restoration siting</li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Pathway C: hydrodynamics-aware larval restoration tooling</h3>
+        <p>
+          Design delivery systems that exploit reef flow physics for larval retention and settlement.
+          Recent work emphasizes hydrodynamics as the scaling constraint.
+        </p>
+        <ul>
+          <li>Passive retention geometry (baffles, roughness gradients)</li>
+          <li>Low-cost larval “boxes” / deployment aids (where locally appropriate)</li>
+          <li>Microtexture settlement panels that mimic reef cues</li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Pathway D (Higher risk): assisted evolution / selective breeding / symbiont tuning</h3>
+        <p>
+          Research suggests selective breeding and symbiont-focused approaches can increase thermal tolerance in some contexts.
+          These require strong governance, biosecurity, and long-term monitoring.
+        </p>
+        <ul>
+          <li>Selective breeding for heat tolerance (with genetic diversity tracking)</li>
+          <li>Experimental evolution of symbionts (lab selection)</li>
+          <li>Potential microbiome/probiotic support (context-dependent)</li>
+        </ul>
+        <div class="callout">
+          Safety gate: treat biological interventions like pharmaceuticals—test, monitor, and avoid uncontrolled spread.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recipes">
+    <div class="secHead">
+      <h2>8) Build recipes: from idea → prototype → pilot (with safety gates)</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Buildable</span>
+        <span class="pill"><span class="dot warn"></span>Field-safe</span>
+      </div>
+    </div>
+
+    <details>
+      <summary>Recipe 1: “Smart shade” (time- and spectrum-limited) prototypes <span class="chev" aria-hidden="true"></span></summary>
+      <div class="grid">
+        <div class="card c6">
+          <h3>Concept</h3>
+          <p>
+            Reduce peak radiative heat load during forecast heat stress windows while preserving enough light for photosynthesis.
+            Think: <strong>partial, temporary, targeted</strong>.
+          </p>
+          <ul>
+            <li>Deploy only when DHW/forecast thresholds indicate imminent stress</li>
+            <li>Prefer materials that are inert, non-shedding, and retrieval-guaranteed</li>
+            <li>Design to avoid entanglement and navigation hazards</li>
+          </ul>
+        </div>
+        <div class="card c6">
+          <h3>Measurement gates</h3>
+          <ul>
+            <li>Temperature at coral surface vs control (micro-loggers)</li>
+            <li>Light intensity/spectrum changes</li>
+            <li>Bleaching score + recovery markers</li>
+            <li>Non-target effects: algae growth, fish behavior, disease signals</li>
+          </ul>
+          <div class="mini">Fail-safe: if it tears/escapes, your design is not ready for the ocean.</div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Recipe 2: “Larval retention geometry” (passive hydrodynamics) <span class="chev" aria-hidden="true"></span></summary>
+      <div class="grid">
+        <div class="card c6">
+          <h3>Concept</h3>
+          <p>
+            Create micro-eddies/recirculation zones that increase larval residence time near settlement substrate.
+            Like designing a “particle trap” that remains reef-friendly.
+          </p>
+          <ul>
+            <li>Use small, modular roughness elements / baffles anchored safely</li>
+            <li>Combine with settlement-friendly textures (non-toxic)</li>
+            <li>Optimize using simple flow visualization in controlled settings first</li>
+          </ul>
+        </div>
+        <div class="card c6">
+          <h3>Measurement gates</h3>
+          <ul>
+            <li>Residence time proxy (dye tests in tanks; current meters in field)</li>
+            <li>Settlement success vs control panels</li>
+            <li>Structural integrity in storms/currents</li>
+            <li>Ecological interaction checks (no habitat smothering)</li>
+          </ul>
+          <div class="callout">
+            Nature model: kelp forests and oyster reefs alter flow to create retention and recruitment zones.
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Recipe 3: “Refugia-first restoration network” planning kit <span class="chev" aria-hidden="true"></span></summary>
+      <div class="grid">
+        <div class="card c6">
+          <h3>Concept</h3>
+          <p>
+            Treat the reef system like a graph: nodes (refugia/broodstock) + edges (larval connectivity).
+            Intervene to strengthen nodes, preserve edges, and add redundancy.
+          </p>
+          <ul>
+            <li>Map candidate refugia using observed outcomes + local oceanography</li>
+            <li>Protect broodstock and reproduction timing</li>
+            <li>Site restoration where connectivity makes seeding plausible</li>
+          </ul>
+        </div>
+        <div class="card c6">
+          <h3>Measurement gates</h3>
+          <ul>
+            <li>Recruitment rates over time</li>
+            <li>Genetic diversity indicators (where permitted)</li>
+            <li>Functional metrics: complexity, herbivory balance, fish biomass</li>
+            <li>Heat-event performance vs pre-intervention baseline</li>
+          </ul>
+          <div class="mini">Rule: do not call a project “successful” without post-heat-event performance data.</div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section id="measurement">
+    <div class="secHead">
+      <h2>9) Measurement & verification: the “no-fantasy” protocol</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Baseline-first</span>
+        <span class="pill"><span class="dot"></span>Controls</span>
+        <span class="pill"><span class="dot warn"></span>Post-heat test</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Minimum viable evidence stack</h3>
+        <ul>
+          <li><strong>Baseline</strong>: pre-intervention temperature/light/health data</li>
+          <li><strong>Control</strong>: matched control site or panels</li>
+          <li><strong>Mechanism</strong>: why this should work (physics/biology) stated explicitly</li>
+          <li><strong>Outcome</strong>: bleaching severity + recovery + function metrics</li>
+          <li><strong>Stress test</strong>: performance during/after a real heat event</li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>Reality-check questions (use these to kill weak ideas early)</h3>
+        <ul>
+          <li>What happens if this fails in a storm?</li>
+          <li>Does it add plastic, toxins, or entanglement risk?</li>
+          <li>Can a local team maintain it with local tools?</li>
+          <li>Is the benefit detectable above natural variability?</li>
+          <li>Does it scale without central control?</li>
+        </ul>
+        <div class="callout">
+          Nature pattern: robust solutions survive turbulence—literal and institutional.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="build">
+    <div class="secHead">
+      <h2>10) Build Lab: generate a testable reef intervention hypothesis</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Local notebook</span>
+        <span class="pill"><span class="dot"></span>Exportable JSON</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Hypothesis builder</h3>
+        <p class="muted">Fill this in. It saves locally. The HUD will award XP for completing a full, testable plan.</p>
+        <label class="muted">Project name<br/>
+          <input id="hName" type="text" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="120" />
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Core problem (one sentence)<br/>
+          <textarea id="hProblem" rows="3" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="600"></textarea>
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Mechanism (physics/biology “why it works”)<br/>
+          <textarea id="hMechanism" rows="4" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="1200"></textarea>
+        </label>
+      </div>
+
+      <div class="card c6">
+        <h3>Gates (required before field deployment)</h3>
+        <p class="muted">These gates are designed to prevent harm and delusion. Check all that apply.</p>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Fail-safe design</strong> (no entanglement, non-toxic, retrievable)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Baseline + control plan</strong> (measured, comparable)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="15" />
+          <span><strong>Post-heat stress evaluation</strong> (not just “looked good once”)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Local stewardship</strong> (maintenance + governance)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="15" />
+          <span><strong>Ethics + ecological risk review</strong> (non-target effects monitored)</span>
+        </label>
+
+        <div class="hr"></div>
+
+        <label class="muted">Metrics (what you will measure)<br/>
+          <textarea id="hMetrics" rows="5" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="1400"></textarea>
+        </label>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button id="btnSaveHyp" class="btnPrimary">Save hypothesis</button>
+          <button id="btnScore" title="Awards XP if your hypothesis is complete">Score & award XP</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="notebook">
+    <div class="secHead">
+      <h2>11) Local notebook (IndexedDB): collect ideas, citations, and experiment notes</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>On-device only</span>
+        <span class="pill"><span class="dot"></span>Sanitized input</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Add a note</h3>
+        <p class="muted">Notes are stored locally. Use this to track experiments, references, and observations.</p>
+        <label class="muted">Title<br/>
+          <input id="nTitle" type="text" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="120" />
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Body<br/>
+          <textarea id="nBody" rows="6" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="6000"></textarea>
+        </label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button id="btnAddNote" class="btnPrimary">Add note</button>
+          <button id="btnWipeNotes" class="btnDanger">Wipe notes</button>
+        </div>
+        <p class="muted" style="font-size:0.88rem; margin-top:10px;">
+          Rate limiting: note creation is gently limited to prevent accidental spam clicks.
+        </p>
+      </div>
+
+      <div class="card c6">
+        <h3>Your saved notes</h3>
+        <div id="notesList" class="mini" style="min-height: 310px;">
+          Loading notes…
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sources">
+    <div class="secHead">
+      <h2>12) Sources (recent + primary where possible)</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Links open in new tab</span>
+        <span class="pill"><span class="dot ok"></span>Prefer authoritative domains</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Monitoring & official status</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://www.noaa.gov/news-release/noaa-confirms-4th-global-coral-bleaching-event">NOAA (Apr 15, 2024): confirms 4th global coral bleaching event</a></li>
+          <li><a target="_blank" rel="noopener" href="https://coralreefwatch.noaa.gov/satellite/research/coral_bleaching_report.php">NOAA Coral Reef Watch: Current Global Bleaching status updates</a></li>
+          <li><a target="_blank" rel="noopener" href="https://icriforum.org/4gbe/">ICRI: Fourth Global Coral Bleaching Event page</a></li>
+          <li><a target="_blank" rel="noopener" href="https://www.aims.gov.au/information-centre/news-and-stories/worst-bleaching-event-record-wa-coral-reefs-following-long-lasting-and-widespread-marine-heatwave">AIMS (Aug 12, 2025): WA reefs worst bleaching after prolonged marine heatwave</a></li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Solution-oriented synthesis & reviews</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://academic.oup.com/bioscience/article/75/7/585/8185301">BioScience (2025): Future directions for coral bleaching research</a></li>
+          <li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/science/article/pii/S0966842X24001392">Trends in Microbiology (2024): experimentally evolved photosymbionts for reef restoration</a></li>
+          <li><a target="_blank" rel="noopener" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11473779/">Open-access (2024): selective breeding enhances coral heat tolerance</a></li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Physics / scaling constraints for restoration</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11973625/">Open-access (2025): reef-scale hydrodynamics for upscaling larval-based restoration</a></li>
+          <li><a target="_blank" rel="noopener" href="https://www.nature.com/articles/s41467-025-65015-4">Nature Communications (2025): modeling coral persistence and closing windows under heatwaves (GBR)</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Background: microbiome/probiotic concept</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://coralwatch.org/wp-content/uploads/2023/11/2020_Morgans-etal-Symbiodiniaceae-probiotics-for-use-in-bleaching-recovery.pdf">Morgans et al. (2020): Symbiodiniaceae probiotics for bleaching recovery (PDF)</a></li>
+        </ul>
+        <div class="callout">
+          Note: older sources are included only when they underpin a mechanism still discussed in newer work.
+        </div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Attributions & Licensing (human-readable) <span class="chev" aria-hidden="true"></span></summary>
+      <p class="muted">
+        This single-file tool is original code (no external libraries). It references publicly available scientific/agency materials via outbound links.
+        Patterns used are common, non-proprietary web patterns (offline-first via Service Worker, local state via IndexedDB, collapsible details, client-side search).
+        For your own fork: consider licensing your derivative work under a permissive license (MIT/Apache-2.0) or a copyleft license (AGPL-3.0) depending on your goals.
+      </p>
+    </details>
+  </section>
+
+</main>
+
+<div id="hud" aria-label="Gamification HUD">
+  <div id="hudHeader">
+    <strong>Build Momentum HUD ✨</strong>
+    <div class="hudRight">
+      <button id="hudToggle" class="tinyBtn" title="Collapse/expand HUD">Collapse</button>
+      <button id="hudReset" class="tinyBtn btnDanger" title="Reset HUD stats (local only)">Reset</button>
+    </div>
+  </div>
+  <div id="hudBody">
+    <div class="hudBox">
+      <div class="hudLabel">XP</div>
+      <div class="hudValue" id="xpVal">0</div>
+      <div class="bar" aria-hidden="true"><i id="xpBar"></i></div>
+    </div>
+    <div class="hudBox">
+      <div class="hudLabel">Level</div>
+      <div class="hudValue" id="lvlVal">1</div>
+      <div class="hudLabel" style="margin-top:8px;">Streak (days)</div>
+      <div class="hudValue" id="streakVal">0</div>
+    </div>
+    <div id="hudCanvasWrap">
+      <div class="hudLabel">Constellation (your local “system state”)</div>
+      <canvas id="constellation" width="900" height="260" aria-label="Constellation visualizer"></canvas>
+      <div class="hudLabel" style="margin-top:8px;">Last action: <span id="lastAction" class="muted">none</span></div>
+    </div>
+  </div>
+  <div class="hudFooter">
+    <span class="muted" style="font-size:0.88rem;">Local-only. No analytics. Export anytime.</span>
+    <span class="pill" title="Offline cache status"><span class="dot" id="swDot"></span><span id="swText">Service Worker: …</span></span>
+  </div>
+</div>
+
+<footer>
+  <div class="footGrid">
+    <div>
+      <strong>Zero-Harm & Anti-Inversion note</strong>
+      <p>
+        This tool is built to empower safe innovation: local-first, transparent, and designed to discourage coercion or reckless deployment.
+        Prefer interventions that are measurable, reversible, and ecologically cautious. No hidden telemetry. No auto-sending. No secrets stored.
+      </p>
+      <div class="hr"></div>
+      <p class="muted" style="font-size:0.92rem;">
+        Practical mantra: <em>“If it can’t be measured, it can’t be trusted. If it can’t fail safe, it can’t go to sea.”</em>
+      </p>
+    </div>
+    <div>
+      <strong>Local controls</strong>
+      <ul class="muted">
+        <li>Export: saves your notes + HUD stats as JSON (on-device).</li>
+        <li>Reset: wipes local data (notes, preferences, HUD).</li>
+        <li>Reduce motion: disables animations and parallax effects.</li>
+      </ul>
+      <div class="hr"></div>
+      <p class="muted" style="font-size:0.92rem;">
+        Print-friendly: use your browser’s Print → “Save as PDF” for a clean share.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+  TOOLTIP: Safety utilities
+  What: Input sanitization + gentle rate limiting + safe DOM updates.
+  How: Escape HTML, constrain lengths, throttle certain actions.
+  Outcome: Prevents accidental injection and UI spam. Zero telemetry.
+============================================================================ */
+(function(){
+  "use strict";
+
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  const SAFE = {
+    esc(s){
+      s = (s ?? "").toString();
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    },
+    clamp(s, n){
+      s = (s ?? "").toString();
+      return s.length > n ? s.slice(0, n) : s;
+    },
+    nowISO(){ return new Date().toISOString(); },
+  };
+
+  const Rate = {
+    _last: new Map(),
+    allow(key, ms){
+      const t = Date.now();
+      const last = this._last.get(key) || 0;
+      if (t - last < ms) return false;
+      this._last.set(key, t);
+      return true;
+    }
+  };
+
+  /* ============================================================================
+    TOOLTIP: IndexedDB wrapper (offline local storage)
+    What: Stores preferences, HUD stats, hypotheses, and notes locally.
+    How: Minimal IndexedDB helper with object stores.
+    Outcome: Offline persistence without external services.
+  ============================================================================ */
+  const DB = {
+    name: "reef_innovation_lab_v1",
+    ver: 1,
+    db: null,
+    async open(){
+      if (this.db) return this.db;
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(this.name, this.ver);
+        req.onupgradeneeded = (e) => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("kv")) db.createObjectStore("kv", { keyPath:"k" });
+          if (!db.objectStoreNames.contains("notes")) db.createObjectStore("notes", { keyPath:"id" });
+          if (!db.objectStoreNames.contains("hyp")) db.createObjectStore("hyp", { keyPath:"id" });
+        };
+        req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+        req.onerror = () => reject(req.error);
+      });
+    },
+    async tx(store, mode="readonly"){
+      const db = await this.open();
+      return db.transaction(store, mode).objectStore(store);
+    },
+    async get(k){
+      const st = await this.tx("kv");
+      return new Promise((resolve) => {
+        const r = st.get(k);
+        r.onsuccess = () => resolve(r.result ? r.result.v : undefined);
+        r.onerror = () => resolve(undefined);
+      });
+    },
+    async set(k, v){
+      const st = await this.tx("kv","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put({k, v});
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async del(k){
+      const st = await this.tx("kv","readwrite");
+      return new Promise((resolve) => {
+        const r = st.delete(k);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async addNote(note){
+      const st = await this.tx("notes","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put(note);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async listNotes(){
+      const st = await this.tx("notes");
+      return new Promise((resolve) => {
+        const out = [];
+        const r = st.openCursor();
+        r.onsuccess = (e) => {
+          const cur = e.target.result;
+          if (!cur) return resolve(out.sort((a,b)=> (b.ts||"").localeCompare(a.ts||"")));
+          out.push(cur.value);
+          cur.continue();
+        };
+        r.onerror = () => resolve([]);
+      });
+    },
+    async wipeNotes(){
+      const st = await this.tx("notes","readwrite");
+      return new Promise((resolve) => {
+        const r = st.clear();
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async saveHyp(h){
+      const st = await this.tx("hyp","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put(h);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async getHypLatest(){
+      const st = await this.tx("hyp");
+      return new Promise((resolve) => {
+        let latest = null;
+        const r = st.openCursor();
+        r.onsuccess = (e) => {
+          const cur = e.target.result;
+          if (!cur) return resolve(latest);
+          const v = cur.value;
+          if (!latest || (v.ts||"") > (latest.ts||"")) latest = v;
+          cur.continue();
+        };
+        r.onerror = () => resolve(null);
+      });
+    },
+    async wipeAll(){
+      await this.wipeNotes();
+      // wipe kv + hyp
+      for (const store of ["kv","hyp"]){
+        const st = await this.tx(store,"readwrite");
+        await new Promise((resolve)=>{ const r = st.clear(); r.onsuccess=()=>resolve(true); r.onerror=()=>resolve(true); });
+      }
+      return true;
+    }
+  };
+
+  /* ============================================================================
+    TOOLTIP: Service worker (offline cache)
+    What: Caches this single file for offline use.
+    How: Creates a SW from a Blob (no external file needed).
+    Outcome: “Online-first with offline fallback” for a single-file app.
+  ============================================================================ */
+  async function registerSW(){
+    const swDot = $("#swDot");
+    const swText = $("#swText");
+
+    if (!("serviceWorker" in navigator)){
+      swDot.className = "dot warn";
+      swText.textContent = "Service Worker: unsupported";
+      return;
+    }
+
+    const swCode = `
+      const CACHE = "reef-lab-cache-v1";
+      self.addEventListener("install", (e) => {
+        e.waitUntil((async () => {
+          const cache = await caches.open(CACHE);
+          // Cache the root request (best effort).
+          try { await cache.add(new Request(self.location.origin + self.location.pathname, {cache:"reload"})); } catch(e){}
+          self.skipWaiting();
+        })());
+      });
+      self.addEventListener("activate", (e) => {
+        e.waitUntil((async () => {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => k === CACHE ? null : caches.delete(k)));
+          self.clients.claim();
+        })());
+      });
+      self.addEventListener("fetch", (e) => {
+        const req = e.request;
+        // Online-first for navigation, fallback to cache.
+        if (req.mode === "navigate"){
+          e.respondWith((async () => {
+            try{
+              const fresh = await fetch(req);
+              const cache = await caches.open(CACHE);
+              cache.put(req, fresh.clone());
+              return fresh;
+            }catch(err){
+              const cached = await caches.match(req);
+              return cached || new Response("Offline and no cached version available.", {status:503, headers:{"Content-Type":"text/plain"}});
+            }
+          })());
+          return;
+        }
+        // Cache-first for other requests.
+        e.respondWith((async () => {
+          const cached = await caches.match(req);
+          if (cached) return cached;
+          try{
+            const fresh = await fetch(req);
+            const cache = await caches.open(CACHE);
+            cache.put(req, fresh.clone());
+            return fresh;
+          }catch(err){
+            return new Response("", {status: 204});
+          }
+        })());
+      });
+    `;
+    const blob = new Blob([swCode], {type:"text/javascript"});
+    const url = URL.createObjectURL(blob);
+
+    try{
+      const reg = await navigator.serviceWorker.register(url);
+      swDot.className = "dot ok";
+      swText.textContent = "Service Worker: active";
+      reg.update?.();
+    }catch(e){
+      swDot.className = "dot warn";
+      swText.textContent = "Service Worker: failed";
+    }finally{
+      setTimeout(()=> URL.revokeObjectURL(url), 5000);
+    }
+  }
+
+  /* ============================================================================
+    TOOLTIP: HUD logic
+    What: XP, level, streak; constellation visualization.
+    How: Stored locally; XP awarded for meaningful actions only.
+    Outcome: Gentle motivation without manipulation.
+  ============================================================================ */
+  const HUD = {
+    state: { xp:0, lvl:1, streak:0, lastDay:"", lastAction:"none", collapsed:false },
+    async load(){
+      const s = await DB.get("hud");
+      if (s && typeof s === "object") this.state = Object.assign(this.state, s);
+      // Streak logic
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dayKey = today.toISOString().slice(0,10);
+      if (!this.state.lastDay){
+        this.state.lastDay = dayKey;
+        this.state.streak = 0;
+      }else if (this.state.lastDay !== dayKey){
+        const prev = new Date(this.state.lastDay + "T00:00:00Z");
+        const diffDays = Math.round((today - prev)/86400000);
+        if (diffDays === 1) this.state.streak = (this.state.streak||0) + 1;
+        else this.state.streak = 0;
+        this.state.lastDay = dayKey;
+        await this.save();
+      }
+      this.render();
+    },
+    async save(){ await DB.set("hud", this.state); },
+    levelFromXP(xp){
+      // Simple curve: lvl grows with sqrt
+      return Math.max(1, Math.floor(Math.sqrt(Math.max(0,xp))/6) + 1);
+    },
+    nextLevelXP(lvl){
+      // approximate inverse of level curve
+      const target = (lvl-1)*6;
+      return target*target;
+    },
+    async award(xp, action){
+      this.state.xp = Math.max(0, (this.state.xp||0) + xp);
+      this.state.lvl = this.levelFromXP(this.state.xp);
+      this.state.lastAction = action || "action";
+      await this.save();
+      this.render();
+      drawConstellation();
+    },
+    render(){
+      $("#xpVal").textContent = String(this.state.xp|0);
+      $("#lvlVal").textContent = String(this.state.lvl|0);
+      $("#streakVal").textContent = String(this.state.streak|0);
+      $("#lastAction").textContent = this.state.lastAction || "none";
+
+      const lvl = this.state.lvl|0;
+      const base = this.nextLevelXP(lvl);
+      const next = this.nextLevelXP(lvl+1);
+      const pct = next === base ? 0 : Math.max(0, Math.min(1, (this.state.xp - base) / (next - base)));
+      $("#xpBar").style.width = (pct*100).toFixed(1) + "%";
+
+      const hud = $("#hud");
+      if (this.state.collapsed){
+        $("#hudBody").style.display = "none";
+      }else{
+        $("#hudBody").style.display = "grid";
+      }
+    },
+    async reset(){
+      this.state = { xp:0, lvl:1, streak:0, lastDay:"", lastAction:"none", collapsed:false };
+      await this.save();
+      this.render();
+      drawConstellation();
+    }
+  };
+
+  /* ============================================================================
+    TOOLTIP: Constellation canvas
+    What: Visualizes local “state” across domains (read/build/measure/ethics).
+    How: Nodes with positions; edges strength responds to XP and completed gates.
+    Outcome: Fun feedback loop; no data leaves device.
+  ============================================================================ */
+  function drawConstellation(){
+    const c = $("#constellation");
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    const W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+
+    const reduce = $("#togReduce")?.checked;
+
+    // Nodes represent categories
+    const gates = $$(".gate").filter(x=>x.checked).length;
+    const xp = HUD.state.xp|0;
+
+    const nodes = [
+      {k:"Heat",   x:0.18, y:0.35, w:0.8,  val: Math.min(1, xp/180)},
+      {k:"Flow",   x:0.44, y:0.22, w:0.75, val: Math.min(1, xp/220)},
+      {k:"Light",  x:0.70, y:0.34, w:0.7,  val: Math.min(1, xp/260)},
+      {k:"Bio",    x:0.58, y:0.68, w:0.85, val: Math.min(1, xp/200)},
+      {k:"Ethics", x:0.26, y:0.72, w:0.95, val: Math.min(1, gates/5)},
+    ];
+
+    const t = Date.now()/1000;
+    function jitter(a){ return reduce ? 0 : (Math.sin(t*0.8 + a)*0.006); }
+
+    const pts = nodes.map((n,i)=>{
+      const x = (n.x + jitter(i*1.3))*W;
+      const y = (n.y + jitter(i*1.9))*H;
+      return Object.assign({}, n, {px:x, py:y});
+    });
+
+    // Draw background stars
+    ctx.globalAlpha = 0.6;
+    for (let i=0;i<70;i++){
+      const sx = (Math.sin(i*999) * 0.5 + 0.5)*W;
+      const sy = (Math.sin(i*777) * 0.5 + 0.5)*H;
+      const r = (i%7===0)? 1.6 : 1.0;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      ctx.arc(sx, sy, r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Edges: stronger with more XP + gates
+    function edge(a,b,boost){
+      const A = pts[a], B = pts[b];
+      const strength = Math.max(0.10, Math.min(0.85, (A.val+B.val)/2 * (0.65 + 0.07*gates) * (boost||1)));
+      ctx.strokeStyle = `rgba(120,197,255,${strength*0.45})`;
+      ctx.lineWidth = 1.2 + strength*1.2;
+      ctx.beginPath();
+      ctx.moveTo(A.px, A.py);
+      ctx.lineTo(B.px, B.py);
+      ctx.stroke();
+    }
+
+    edge(0,1,1.0); edge(1,2,1.0); edge(2,3,1.0); edge(3,4,1.1); edge(4,0,1.1); edge(1,3,0.9);
+
+    // Nodes
+    for (const p of pts){
+      const r = 6 + 10*p.val;
+      // glow
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(208,140,255,0.10)";
+      ctx.arc(p.px, p.py, r*2.3, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.arc(p.px, p.py, r*0.55, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(120,197,255,0.55)";
+      ctx.arc(p.px, p.py, r, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.font = "12px " + getComputedStyle(document.documentElement).getPropertyValue("--mono");
+      ctx.fillStyle = "rgba(255,255,255,0.82)";
+      ctx.fillText(p.k, p.px + 10, p.py - 10);
+    }
+  }
+
+  /* ============================================================================
+    TOOLTIP: Client-side search
+    What: Highlights matches and dims non-matches across cards/details.
+    How: Extract textContent; apply mark tags; set data-filtered attributes.
+    Outcome: Fast navigation without network calls.
+  ============================================================================ */
+  function clearMarks(root){
+    // Remove <mark> tags by replacing with text nodes
+    const marks = root.querySelectorAll("mark");
+    for (const m of marks){
+      const t = document.createTextNode(m.textContent);
+      m.replaceWith(t);
+    }
+  }
+
+  function highlight(root, query){
+    clearMarks(root);
+    if (!query) return;
+    const q = query.toLowerCase();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (["SCRIPT","STYLE","TEXTAREA","INPUT"].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if (!node.nodeValue || node.nodeValue.trim().length < 2) return NodeFilter.FILTER_REJECT;
+        if (node.nodeValue.toLowerCase().includes(q)) return NodeFilter.FILTER_ACCEPT;
+        return NodeFilter.FILTER_REJECT;
+      }
+    });
+    const hits = [];
+    while (walker.nextNode()) hits.push(walker.currentNode);
+
+    for (const textNode of hits){
+      const txt = textNode.nodeValue;
+      const idx = txt.toLowerCase().indexOf(q);
+      if (idx < 0) continue;
+
+      const before = document.createTextNode(txt.slice(0, idx));
+      const mid = document.createElement("mark");
+      mid.textContent = txt.slice(idx, idx + query.length);
+      const after = document.createTextNode(txt.slice(idx + query.length));
+
+      const frag = document.createDocumentFragment();
+      frag.append(before, mid, after);
+      textNode.parentNode.replaceChild(frag, textNode);
+    }
+  }
+
+  function applySearch(q){
+    const blocks = $$("section, .card, details");
+    if (!q){
+      blocks.forEach(b=> b.removeAttribute("data-filtered"));
+      blocks.forEach(b=> clearMarks(b));
+      return;
+    }
+    const qq = q.toLowerCase();
+    for (const b of blocks){
+      const txt = (b.textContent || "").toLowerCase();
+      const hit = txt.includes(qq);
+      b.setAttribute("data-filtered", hit ? "in" : "out");
+      if (hit) highlight(b, q);
+      else clearMarks(b);
+    }
+  }
+
+  /* ============================================================================
+    TOOLTIP: Notes UI
+    What: CRUD-like notes list (simple).
+    How: Add notes (sanitized) + render list; wipe option.
+    Outcome: Users can build on the doc and export progress.
+  ============================================================================ */
+  async function renderNotes(){
+    const box = $("#notesList");
+    const notes = await DB.listNotes();
+    if (!notes.length){
+      box.innerHTML = SAFE.esc("No notes yet. Add one on the left.");
+      return;
+    }
+    const out = notes.map(n => {
+      const t = SAFE.esc(n.title || "(untitled)");
+      const b = SAFE.esc(n.body || "");
+      const ts = SAFE.esc(n.ts || "");
+      return `• <strong>${t}</strong> <span class="muted">(${ts})</span><br/>${b}<br/><br/>`;
+    }).join("");
+    box.innerHTML = out;
+  }
+
+  /* ============================================================================
+    TOOLTIP: Hypothesis UI
+    What: Save/load latest hypothesis; score gates.
+    How: Sanitize inputs; award XP once per scoring.
+    Outcome: Encourages complete, testable plans.
+  ============================================================================ */
+  async function loadHyp(){
+    const h = await DB.getHypLatest();
+    if (!h) return;
+    $("#hName").value = h.name || "";
+    $("#hProblem").value = h.problem || "";
+    $("#hMechanism").value = h.mechanism || "";
+    $("#hMetrics").value = h.metrics || "";
+  }
+
+  async function saveHyp(){
+    if (!Rate.allow("saveHyp", 800)) return;
+    const h = {
+      id: "hyp-" + Date.now(),
+      ts: SAFE.nowISO(),
+      name: SAFE.clamp($("#hName").value, 120),
+      problem: SAFE.clamp($("#hProblem").value, 600),
+      mechanism: SAFE.clamp($("#hMechanism").value, 1200),
+      metrics: SAFE.clamp($("#hMetrics").value, 1400),
+    };
+    await DB.saveHyp(h);
+    HUD.award(15, "Saved hypothesis");
+  }
+
+  async function scoreHyp(){
+    if (!Rate.allow("scoreHyp", 1200)) return;
+    let xp = 0;
+    const fields = [
+      $("#hName").value.trim(),
+      $("#hProblem").value.trim(),
+      $("#hMechanism").value.trim(),
+      $("#hMetrics").value.trim(),
+    ];
+    xp += fields.filter(Boolean).length * 5;
+    $$(".gate").forEach(g => { if (g.checked) xp += Number(g.dataset.xp||0); });
+    if (xp > 0) HUD.award(xp, "Scored hypothesis");
+  }
+
+  /* ============================================================================
+    TOOLTIP: UI wiring
+    What: Event listeners for navigation, search, buttons.
+    How: Small handlers; no frameworks.
+    Outcome: Predictable, accessible behavior.
+  ============================================================================ */
+  function wireUI(){
+    // Splash
+    $("#btnEnter")?.addEventListener("click", async ()=>{
+      $("#splash").style.display = "none";
+      await DB.set("pref_splash", false);
+      HUD.award(5, "Entered lab");
+    });
+    $("#btnSkipAnim")?.addEventListener("click", async ()=>{
+      await DB.set("pref_splash", true);
+      $("#splash").style.display = "none";
+    });
+    $("#btnResetAll")?.addEventListener("click", async ()=>{
+      if (!confirm("This will wipe ALL local data (notes, preferences, HUD). Continue?")) return;
+      await DB.wipeAll();
+      await HUD.reset();
+      renderNotes();
+      drawConstellation();
+    });
+
+    // Nav jumps
+    $$("[data-jump]").forEach(b=>{
+      b.addEventListener("click", ()=> {
+        const id = b.getAttribute("data-jump");
+        const el = document.querySelector(id);
+        el?.scrollIntoView({behavior:"smooth"});
+      });
+    });
+
+    // Search
+    const s = $("#search");
+    s?.addEventListener("input", ()=> applySearch(s.value.trim()));
+    $("#btnClear")?.addEventListener("click", ()=>{ s.value=""; applySearch(""); });
+
+    // Keyboard focus
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "/"){
+        e.preventDefault();
+        s?.focus();
+      }
+    });
+
+    // Reduce motion
+    $("#togReduce")?.addEventListener("change", async (e)=>{
+      await DB.set("pref_reduce", !!e.target.checked);
+      drawConstellation();
+    });
+
+    // Hypothesis
+    $("#btnSaveHyp")?.addEventListener("click", saveHyp);
+    $("#btnScore")?.addEventListener("click", scoreHyp);
+
+    // Notes
+    $("#btnAddNote")?.addEventListener("click", async ()=>{
+      if (!Rate.allow("addNote", 1200)) return;
+      const title = SAFE.clamp($("#nTitle").value, 120);
+      const body = SAFE.clamp($("#nBody").value, 6000);
+      if (!title && !body) return;
+      await DB.addNote({ id:"note-"+Date.now(), ts: SAFE.nowISO(), title, body });
+      $("#nTitle").value = ""; $("#nBody").value = "";
+      renderNotes();
+      HUD.award(8, "Added note");
+    });
+    $("#btnWipeNotes")?.addEventListener("click", async ()=>{
+      if (!confirm("Wipe all local notes?")) return;
+      await DB.wipeNotes();
+      renderNotes();
+    });
+
+    // Export
+    $("#btnExport")?.addEventListener("click", async ()=>{
+      const payload = {
+        exportedAt: SAFE.nowISO(),
+        hud: await DB.get("hud"),
+        notes: await DB.listNotes(),
+        hypothesis: await DB.getHypLatest(),
+        prefs: {
+          reduce: await DB.get("pref_reduce"),
+          splashDisabled: await DB.get("pref_splash"),
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "reef_innovation_lab_export.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+
+    // HUD controls
+    $("#hudToggle")?.addEventListener("click", async ()=>{
+      HUD.state.collapsed = !HUD.state.collapsed;
+      await HUD.save();
+      HUD.render();
+    });
+    $("#hudReset")?.addEventListener("click", async ()=>{
+      if (!confirm("Reset HUD stats?")) return;
+      await HUD.reset();
+    });
+  }
+
+  /* ============================================================================
+    TOOLTIP: Init
+    What: Boot sequence.
+    How: Load DB, prefs, HUD; register SW; draw visuals.
+    Outcome: Fast start, offline-ready.
+  ============================================================================ */
+  async function init(){
+    await DB.open();
+    // Splash preference
+    const splashDisabled = await DB.get("pref_splash");
+    if (splashDisabled) $("#splash").style.display = "none";
+
+    // Reduce motion pref
+    const reduce = await DB.get("pref_reduce");
+    $("#togReduce").checked = !!reduce;
+
+    // Status pill
+    $("#statusDot").className = "dot ok";
+    $("#statusText").textContent = "Local storage ready";
+
+    await HUD.load();
+    await registerSW();
+    await loadHyp();
+    await renderNotes();
+    drawConstellation();
+    wireUI();
+  }
+
+  window.addEventListener("load", init);
+})();
+</script>
+
+</body>
+</html>
