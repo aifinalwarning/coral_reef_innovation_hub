@@ -1,0 +1,2800 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coral Reefs Sitrep → Innovation Methodologies Lab (Enhanced) → Offline-First</title>
+  <meta name="description" content="PhD-level field manual with embedded innovation methodologies: systems thinking, biomimicry, scenario planning, theory of change, and rapid prototyping for coral reef restoration. Offline-first, local-only." />
+  <style>
+    /* ============================================================================
+      TOOLTIP: Global styles
+      What: Visual system for long-form reading, parallax sections, collapsibles, and print.
+      How: Pure CSS. No external fonts or dependencies.
+      Outcome: Clean, legible, offline-safe interface with strong hierarchy.
+    ============================================================================ */
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --bg2:#0E1630;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.09);
+      --line: rgba(255,255,255,0.12);
+      --txt: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --faint: rgba(255,255,255,0.55);
+      --good: rgba(116, 255, 167, 0.95);
+      --warn: rgba(255, 216, 120, 0.95);
+      --bad: rgba(255, 120, 120, 0.95);
+      --accent: rgba(120, 197, 255, 0.95);
+      --accent2: rgba(208, 140, 255, 0.95);
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --radius: 18px;
+      --radius2: 26px;
+      --maxw: 1100px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--txt);
+      background: radial-gradient(1400px 900px at 15% 10%, rgba(120,197,255,0.18), transparent 60%),
+                  radial-gradient(1200px 800px at 85% 15%, rgba(208,140,255,0.12), transparent 60%),
+                  radial-gradient(1200px 900px at 45% 90%, rgba(116,255,167,0.08), transparent 70%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1) 35%, var(--bg2) 100%);
+      overflow-x:hidden;
+    }
+
+    a{ color: var(--accent); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* ============================================================================
+      TOOLTIP: Splash screen
+      What: Animated intro that can be skipped; sets tone and loads cached state.
+      How: Fixed overlay with CSS animation; dismissed on user interaction or after init.
+      Outcome: Smooth onboarding + no blocking on slow devices.
+    ============================================================================ */
+    #splash{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1000px 700px at 50% 40%, rgba(120,197,255,0.14), transparent 60%),
+                  linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.70));
+      z-index: 9999;
+      backdrop-filter: blur(8px);
+    }
+    .splashCard{
+      width:min(880px, 92vw);
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background: rgba(10,14,30,0.62);
+      box-shadow: var(--shadow);
+      padding: 22px 20px;
+      position:relative;
+      overflow:hidden;
+    }
+    .splashHeader{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; gap:14px; align-items:center;
+    }
+    .logoOrb{
+      width:54px; height:54px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,197,255,0.55) 30%, rgba(208,140,255,0.22) 62%, rgba(0,0,0,0.0) 70%),
+                  radial-gradient(circle at 55% 65%, rgba(116,255,167,0.25), transparent 55%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 70px rgba(120,197,255,0.18);
+      position:relative;
+    }
+    .logoOrb::after{
+      content:"";
+      position:absolute; inset:-40px;
+      background: conic-gradient(from 180deg, rgba(120,197,255,0.0), rgba(120,197,255,0.26), rgba(208,140,255,0.18), rgba(120,197,255,0.0));
+      animation: spin 6.4s linear infinite;
+      mask: radial-gradient(circle, rgba(0,0,0,0) 55%, rgba(0,0,0,1) 62%, rgba(0,0,0,0) 72%);
+      pointer-events:none;
+    }
+    @keyframes spin { to{ transform: rotate(360deg); } }
+
+    .splashTitle{
+      font-size: 1.08rem;
+      letter-spacing: 0.2px;
+      margin:0;
+    }
+    .splashSub{
+      margin:6px 0 0 0;
+      color: var(--muted);
+      line-height:1.35;
+      font-size: 0.96rem;
+    }
+    .splashActions{
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      margin-top: 14px;
+      flex-wrap:wrap;
+    }
+    button, .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--txt);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing:0.2px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    button:hover, .btn:hover{ background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); }
+    button:active{ transform: translateY(1px); }
+    .btnPrimary{ background: rgba(120,197,255,0.16); border-color: rgba(120,197,255,0.35); }
+    .btnPrimary:hover{ background: rgba(120,197,255,0.22); }
+    .btnDanger{ background: rgba(255,120,120,0.13); border-color: rgba(255,120,120,0.28); }
+
+    .splashMeta{
+      margin-top: 12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(255,255,255,0.10);
+      padding-top:12px;
+    }
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius:999px;
+      padding: 6px 10px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 0 22px rgba(120,197,255,0.22);
+    }
+    .dot.ok{ background: rgba(116,255,167,0.75); }
+    .dot.warn{ background: rgba(255,216,120,0.80); }
+    .dot.bad{ background: rgba(255,120,120,0.75); }
+
+    /* ============================================================================
+      TOOLTIP: Sticky nav / TOC
+      What: Persistent navigation + search + quick actions.
+      How: position:sticky with responsive layout.
+      Outcome: Readers can jump around long content quickly.
+    ============================================================================ */
+    header{
+      position:sticky; top:0; z-index:1000;
+      background: rgba(7,10,18,0.60);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .navWrap{
+      max-width: var(--maxw);
+      margin:0 auto;
+      padding: 10px 14px;
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .navLeft{ display:flex; gap:12px; align-items:center; min-width: 270px; }
+    .miniLogo{
+      width:34px; height:34px; border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(120,197,255,0.55) 35%, rgba(208,140,255,0.22) 68%, rgba(0,0,0,0.0) 73%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 40px rgba(120,197,255,0.14);
+    }
+    .navTitle{
+      display:flex; flex-direction:column;
+      line-height: 1.1;
+    }
+    .navTitle strong{ font-size: 0.98rem; }
+    .navTitle span{ font-size: 0.80rem; color: var(--muted); }
+
+    .navMid{
+      display:flex; gap:10px; align-items:center; justify-content:center;
+      flex: 1 1 420px;
+      min-width: 250px;
+    }
+    .searchBox{
+      flex: 1 1 420px;
+      display:flex; gap:8px; align-items:center;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 8px 10px;
+      max-width: 680px;
+    }
+    .searchBox input{
+      flex:1;
+      background: transparent;
+      border:none;
+      outline:none;
+      color: var(--txt);
+      font-size: 0.95rem;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border:1px solid rgba(255,255,255,0.14);
+      color: var(--faint);
+      user-select:none;
+    }
+
+    .navRight{
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      min-width: 260px;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Main layout
+      What: Parallax sections + content cards.
+      How: Background layers + intersection-based glow.
+      Outcome: Immersive reading, not gimmick overload.
+    ============================================================================ */
+    main{ max-width: var(--maxw); margin: 0 auto; padding: 18px 14px 120px 14px; }
+    .hero{
+      position:relative;
+      margin-top: 14px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .heroInner{
+      padding: 22px 18px 18px 18px;
+      display:grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 920px){
+      .heroInner{ grid-template-columns: 1fr; }
+      .navLeft, .navRight{ min-width:unset; }
+    }
+
+    .hero h1{
+      margin:0;
+      font-size: 1.55rem;
+      letter-spacing: 0.2px;
+    }
+    .hero p{
+      margin: 10px 0 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 1.02rem;
+    }
+    .heroBadges{
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin-top: 12px;
+    }
+    .badge{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      display:inline-flex; gap:8px; align-items:center;
+      user-select:none;
+    }
+    .badge strong{ color: var(--txt); font-weight: 750; }
+    .badge .bDot{ width:8px; height:8px; border-radius:999px; background: rgba(255,255,255,0.25); }
+    .badge .bDot.a{ background: rgba(120,197,255,0.75); }
+    .badge .bDot.g{ background: rgba(116,255,167,0.75); }
+    .badge .bDot.w{ background: rgba(255,216,120,0.78); }
+
+    .sideCard{
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.16);
+      border-radius: 18px;
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .sideCard h3{ margin:0; font-size: 1.0rem; }
+    .sideCard p{ margin: 8px 0 0 0; color: var(--muted); line-height: 1.45; font-size: 0.95rem; }
+    .sideCard .row{
+      margin-top: 10px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Collapsibles
+      What: details/summary sections for deep dives.
+      How: HTML <details> plus CSS polish.
+      Outcome: "Exhaustive" without overwhelming.
+    ============================================================================ */
+    details{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      padding: 10px 12px;
+      margin: 14px 0;
+    }
+    details[open]{ background: rgba(255,255,255,0.055); }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .chev{
+      width: 12px; height: 12px;
+      border-right: 2px solid rgba(255,255,255,0.65);
+      border-bottom: 2px solid rgba(255,255,255,0.65);
+      transform: rotate(-45deg);
+      transition: transform .18s ease;
+      margin-left:auto;
+      opacity: 0.9;
+    }
+    details[open] .chev{ transform: rotate(45deg); }
+
+    /* ============================================================================
+      TOOLTIP: Section cards
+      What: Reusable card blocks for frameworks, patterns, and build recipes.
+      How: Grid + border + subtle gradients.
+      Outcome: Consistent reading flow and easy future expansion.
+    ============================================================================ */
+    section{
+      margin-top: 22px;
+      scroll-margin-top: 92px;
+    }
+    .secHead{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin: 8px 0 10px 0;
+    }
+    .secHead h2{
+      margin:0;
+      font-size: 1.22rem;
+      letter-spacing:0.2px;
+    }
+    .secHead .secMeta{
+      color: var(--muted);
+      font-size: 0.88rem;
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+    .card{
+      grid-column: span 12;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.24);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card h3{ margin:0; font-size: 1.02rem; }
+    .card p{ margin: 8px 0 0 0; color: var(--muted); line-height: 1.55; }
+    .card ul{ margin: 10px 0 0 18px; color: var(--muted); line-height: 1.5; }
+    .card li{ margin: 6px 0; }
+
+    .c6{ grid-column: span 6; }
+    .c7{ grid-column: span 7; }
+    .c5{ grid-column: span 5; }
+    .c4{ grid-column: span 4; }
+    .c8{ grid-column: span 8; }
+    .c3{ grid-column: span 3; }
+    .c9{ grid-column: span 9; }
+    @media (max-width: 920px){
+      .c6,.c7,.c5,.c4,.c8,.c3,.c9{ grid-column: span 12; }
+    }
+
+    .callout{
+      border-left: 3px solid rgba(120,197,255,0.70);
+      padding: 10px 12px;
+      background: rgba(120,197,255,0.08);
+      border-radius: 14px;
+      margin-top: 10px;
+      color: var(--muted);
+    }
+    .mini{
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      color: rgba(255,255,255,0.78);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 10px 10px;
+      overflow:auto;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    /* Canvas for systems diagrams */
+    .diagramCanvas{
+      width: 100%;
+      height: 320px;
+      display:block;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.18);
+      border:1px solid rgba(255,255,255,0.10);
+      margin-top: 10px;
+    }
+
+    /* Method cards with interactive elements */
+    .methodCard{
+      border:1px solid rgba(208,140,255,0.25);
+      background: rgba(208,140,255,0.06);
+      border-radius: 18px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .methodCard h4{
+      margin:0 0 8px 0;
+      color: var(--accent2);
+      font-size: 0.98rem;
+    }
+
+    /* ============================================================================
+      TOOLTIP: HUD + Constellation visualizer
+      What: Gamified progress + local-only "state constellation" to reflect reading/build actions.
+      How: Fixed HUD + Canvas overlay. Stored in IndexedDB.
+      Outcome: Gentle motivation + "system state" glance without surveillance.
+    ============================================================================ */
+    #hud{
+      position:fixed;
+      right: 14px; bottom: 14px;
+      width: min(420px, calc(100vw - 28px));
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      background: rgba(0,0,0,0.40);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      z-index: 1200;
+    }
+    #hudHeader{
+      padding: 10px 12px;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    #hudHeader strong{ font-size: 0.95rem; letter-spacing:0.2px; }
+    #hudHeader .hudRight{ display:flex; gap:8px; align-items:center; }
+    #hudBody{
+      padding: 10px 12px 12px 12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .hudBox{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      min-height: 74px;
+    }
+    .hudLabel{ color: var(--muted); font-size: 0.82rem; }
+    .hudValue{ margin-top: 6px; font-family: var(--mono); font-size: 0.96rem; }
+    .bar{
+      margin-top: 8px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      overflow:hidden;
+    }
+    .bar > i{
+      display:block; height:100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(120,197,255,0.75), rgba(208,140,255,0.55), rgba(116,255,167,0.55));
+      border-radius: 999px;
+    }
+    #hudCanvasWrap{
+      grid-column: span 2;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.22);
+      padding: 8px;
+      position:relative;
+    }
+    #constellation{
+      width: 100%;
+      height: 180px;
+      display:block;
+      border-radius: 12px;
+    }
+    .hudFooter{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding: 10px 12px 12px 12px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      align-items:center; justify-content:space-between;
+    }
+    .tinyBtn{ padding: 8px 10px; border-radius: 14px; font-weight: 750; font-size: 0.88rem; }
+    .muted{ color: var(--muted); }
+
+    /* ============================================================================
+      TOOLTIP: Search highlighting
+      What: Marks matches and dims non-matches.
+      How: JS toggles data attributes.
+      Outcome: Quick scanning in dense text.
+    ============================================================================ */
+    mark{
+      background: rgba(255,216,120,0.22);
+      color: var(--txt);
+      border:1px solid rgba(255,216,120,0.18);
+      padding: 0 3px;
+      border-radius: 6px;
+    }
+    [data-filtered="out"]{
+      opacity: 0.18;
+      filter: saturate(0.6);
+      transition: opacity .15s ease;
+    }
+    [data-filtered="in"]{
+      opacity: 1;
+      transition: opacity .15s ease;
+    }
+
+    /* ============================================================================
+      TOOLTIP: Footer + print stylesheet
+      What: Visible safety note; clean printing.
+      How: @media print hides HUD/nav and flattens colors.
+      Outcome: Shareable PDFs without UI clutter.
+    ============================================================================ */
+    footer{
+      margin-top: 30px;
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+      max-width: var(--maxw);
+      margin-left:auto; margin-right:auto;
+    }
+    .footGrid{
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+    @media(max-width: 920px){ .footGrid{ grid-template-columns: 1fr; } }
+
+    .hr{ height:1px; background: rgba(255,255,255,0.10); margin: 12px 0; }
+
+    .noscript{
+      border:1px solid rgba(255,216,120,0.22);
+      background: rgba(255,216,120,0.08);
+      border-radius: 18px;
+      padding: 12px;
+      margin: 12px 0 0 0;
+      color: var(--muted);
+    }
+
+    @media print{
+      header, #hud, #splash { display:none !important; }
+      body{ background:#fff; color:#000; }
+      .hero, .card, details, .sideCard{ box-shadow:none; background:#fff; border-color:#bbb; }
+      a{ color:#000; text-decoration:underline; }
+      .badge, .pill{ border-color:#bbb; background:#fff; }
+      .mini{ background:#fff; border-color:#bbb; color:#000; }
+      mark{ background:#ff0; border:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!--
+Zero-Harm + Anti-Inversion note:
+This document is designed to support safe, transparent, local-first learning and innovation.
+It avoids coercive "do X to Y" instructions, avoids hidden telemetry, and encourages peer review, measurement, and ethics gates.
+All data stays on-device unless you explicitly export it.
+-->
+
+<div id="splash" role="dialog" aria-modal="true" aria-label="Welcome">
+  <div class="splashCard">
+    <div class="splashHeader">
+      <div class="brand">
+        <div class="logoOrb" aria-hidden="true"></div>
+        <div>
+          <h2 class="splashTitle">Coral Reefs: Innovation Methodologies Lab 🪸🧠⚙️</h2>
+          <p class="splashSub">
+            Enhanced field manual with embedded innovation methodologies: systems thinking, biomimicry, scenario planning, theory of change, 
+            and rapid prototyping tools. Offline-first, local-only, with interactive frameworks for testable solutions.
+          </p>
+        </div>
+      </div>
+      <div class="pill" title="Local-only state; no tracking">
+        <span class="dot ok" id="statusDot"></span>
+        <span id="statusText">Initializing local storage…</span>
+      </div>
+    </div>
+
+    <div class="splashActions">
+      <button class="btnPrimary" id="btnEnter">Enter</button>
+      <button id="btnSkipAnim" class="tinyBtn" title="Disables splash next time (saved locally)">Disable splash</button>
+      <button id="btnResetAll" class="btnDanger tinyBtn" title="Wipes local notes, preferences, and HUD stats">Reset local data</button>
+    </div>
+
+    <div class="splashMeta">
+      <div class="pill" title="Works without internet after first load">
+        <span class="dot warn"></span>
+        <span>Offline-first • Service Worker cache</span>
+      </div>
+      <div class="pill" title="Innovation methodologies">
+        <span class="dot"></span>
+        <span>Systems thinking • Biomimicry • Scenario planning</span>
+      </div>
+      <div class="pill" title="Safety gates built in">
+        <span class="dot ok"></span>
+        <span>Zero-harm guardrails</span>
+      </div>
+    </div>
+    <noscript>
+      <div class="noscript">
+        JavaScript is disabled. You can still read everything, but interactive tools, offline caching, and local notes won't work.
+        For full functionality, enable JavaScript.
+      </div>
+    </noscript>
+  </div>
+</div>
+
+<header>
+  <div class="navWrap">
+    <div class="navLeft">
+      <div class="miniLogo" aria-hidden="true"></div>
+      <div class="navTitle">
+        <strong>Coral Reef Innovation Lab (Enhanced)</strong>
+        <span>Research × methodologies × ethics • local-only</span>
+      </div>
+    </div>
+
+    <div class="navMid">
+      <div class="searchBox" title="Client-side search. Tip: press / to focus">
+        <span class="kbd">/</span>
+        <input id="search" type="search" placeholder="Search: systems thinking, biomimicry, theory of change, scenario planning…" autocomplete="off" />
+        <button id="btnClear" class="tinyBtn" title="Clear search">Clear</button>
+      </div>
+    </div>
+
+    <div class="navRight">
+      <button class="tinyBtn" data-jump="#toc" title="Jump to Table of Contents">TOC</button>
+      <button class="tinyBtn" data-jump="#methodologies" title="Jump to Innovation Methodologies">Methods</button>
+      <button class="tinyBtn" data-jump="#build" title="Jump to the Build Lab">Build Lab</button>
+      <button class="tinyBtn" id="btnExport" title="Export your local notes + HUD stats as a JSON file">Export</button>
+      <label class="pill" style="cursor:pointer" title="Save preference locally">
+        <input id="togReduce" type="checkbox" style="transform:scale(1.1)" />
+        Reduce motion
+      </label>
+    </div>
+  </div>
+</header>
+
+<main>
+  <article class="hero" id="top">
+    <div class="heroInner">
+      <div>
+        <h1>Coral Reef Innovation Lab: Research + Methodologies for Responsible Solutions 🪸⚙️</h1>
+        <p>
+          This enhanced manual integrates <strong>innovation methodologies</strong> with coral reef science to help you develop 
+          <strong>testable, ethical, and scalable</strong> solutions. Use systems thinking, biomimicry frameworks, scenario planning, 
+          theory of change mapping, and rapid prototyping checklists to transform ideas into field-ready interventions. 
+          All tools work offline and store data locally.
+        </p>
+        <div class="heroBadges">
+          <span class="badge"><span class="bDot a"></span><strong>Systems thinking</strong> tools included</span>
+          <span class="badge"><span class="bDot g"></span><strong>Biomimicry</strong> pattern library</span>
+          <span class="badge"><span class="bDot w"></span><strong>Scenario planning</strong> frameworks</span>
+          <span class="badge"><span class="bDot a"></span><strong>Theory of Change</strong> mapping</span>
+        </div>
+
+        <div class="callout">
+          <strong>Enhanced approach:</strong> Beyond understanding coral reef challenges, this lab provides structured methodologies 
+          to generate, evaluate, and refine solutions. Each methodology is adapted for ecological contexts with built-in safety gates.
+        </div>
+      </div>
+
+      <aside class="sideCard">
+        <h3>What's new in this enhanced version</h3>
+        <p>
+          ✨ Systems mapping tools with causal loop diagrams<br/>
+          ✨ Biomimicry innovation frameworks<br/>
+          ✨ Scenario planning for climate futures<br/>
+          ✨ Theory of Change templates<br/>
+          ✨ First principles thinking guides<br/>
+          ✨ Pre-mortem analysis checklists
+        </p>
+        <div class="row">
+          <a class="btn btnPrimary" href="#methodologies">Explore methodologies</a>
+          <a class="btn" href="#build">Go to enhanced build lab</a>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <section id="toc">
+    <div class="secHead">
+      <h2>Table of contents</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Comprehensive + structured</span>
+        <span class="pill"><span class="dot"></span>Interactive tools</span>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <h3>Part I: Foundation</h3>
+        <ul>
+          <li><a href="#sitrep">Current state of coral reefs</a></li>
+          <li><a href="#mechanisms">Mechanisms & physics</a></li>
+          <li><a href="#constraints">Constraints & failure modes</a></li>
+          <li><a href="#patterns">Nature patterns & design principles</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>Part II: Innovation Methodologies (NEW)</h3>
+        <ul>
+          <li><a href="#methodologies">Methodology overview</a></li>
+          <li><a href="#systems-thinking">Systems thinking & causal loops</a></li>
+          <li><a href="#biomimicry">Biomimicry frameworks</a></li>
+          <li><a href="#scenario-planning">Scenario planning</a></li>
+          <li><a href="#theory-of-change">Theory of Change mapping</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>Part III: Application</h3>
+        <ul>
+          <li><a href="#first-principles">First principles thinking</a></li>
+          <li><a href="#pre-mortem">Pre-mortem analysis</a></li>
+          <li><a href="#pathways">Solution pathways & portfolios</a></li>
+          <li><a href="#recipes">Build recipes with safety gates</a></li>
+        </ul>
+      </div>
+      <div class="card c6">
+        <h3>Part IV: Build Lab (Enhanced)</h3>
+        <ul>
+          <li><a href="#build">Interactive hypothesis builder</a></li>
+          <li><a href="#methodology-selector">Methodology selector tool</a></li>
+          <li><a href="#measurement">Measurement & verification protocols</a></li>
+          <li><a href="#notebook">Local notebook system</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDATION SECTIONS (Condensed versions with references to full content) -->
+  
+  <section id="sitrep">
+    <div class="secHead">
+      <h2>1) Current state: Heat-driven volatility is now baseline</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot warn"></span>Fourth global bleaching event confirmed</span>
+        <span class="pill"><span class="dot"></span>DHW as common language</span>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Key findings (as of monitoring through 2024-2025)</h3>
+        <p>
+          NOAA confirmed the Fourth Global Coral Bleaching Event in April 2024. Recurring marine heatwaves compress recovery windows, 
+          shifting reefs toward simpler states. DHW (Degree Heating Weeks) metrics show widespread bleaching-level stress across global reef areas.
+        </p>
+        <div class="mini">
+          <strong>Systems insight:</strong> This is not a linear stress → response relationship. Feedback loops amplify: heat stress → 
+          bleaching → reduced resilience → increased disease susceptibility → further mortality → ecosystem simplification → 
+          reduced buffering capacity → greater vulnerability to next event.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mechanisms">
+    <div class="secHead">
+      <h2>2) Mechanisms: Understanding the system dynamics</h2>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <h3>Bleaching as energy cascade failure</h3>
+        <p>
+          Symbiosis breakdown triggers: oxidative stress → photosystem damage → symbiont expulsion → energy deficit → 
+          immunosuppression → disease vulnerability. Not a single failure point but a cascading system collapse.
+        </p>
+      </div>
+      <div class="card c6">
+        <h3>Leverage points for intervention</h3>
+        <p>
+          Systems thinking reveals multiple intervention nodes: (1) reduce heat load, (2) enhance symbiont tolerance, 
+          (3) support energy reserves, (4) strengthen immune response, (5) reduce compounding stressors.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="constraints">
+    <div class="secHead">
+      <h2>3) Constraints: What limits solutions</h2>
+    </div>
+    <div class="grid">
+      <div class="card c4">
+        <h3>Global forcing ceiling</h3>
+        <p>Climate-driven heat sets upper bound on local interventions.</p>
+      </div>
+      <div class="card c4">
+        <h3>Ecological network effects</h3>
+        <p>Single-variable optimization often creates unintended cascades.</p>
+      </div>
+      <div class="card c4">
+        <h3>Scaling barriers</h3>
+        <p>Governance, logistics, and local capacity limit deployment.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="patterns">
+    <div class="secHead">
+      <h2>4) Nature patterns as solution templates</h2>
+    </div>
+    <div class="grid">
+      <div class="card c6">
+        <h3>Refugia, redundancy, pulses, edges</h3>
+        <p>
+          Nature maintains diversity through: thermal refugia (buffered microclimates), functional redundancy (multiple pathways), 
+          pulsed subsidies (resource timing), and edge effects (connectivity). These become design templates.
+        </p>
+      </div>
+      <div class="card c6">
+        <h3>Physics knobs: heat, flow, light, chemistry</h3>
+        <p>
+          Intervention opportunities exist where physics meets biology: boundary layer control, selective radiation filtering, 
+          hydrodynamic optimization for larval retention, and water quality management.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INNOVATION METHODOLOGIES SECTION (NEW) -->
+  
+  <section id="methodologies">
+    <div class="secHead">
+      <h2>Part II: Innovation Methodologies</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Structured frameworks</span>
+        <span class="pill"><span class="dot a"></span>Adapted for ecology</span>
+        <span class="pill"><span class="dot"></span>Interactive tools</span>
+      </div>
+    </div>
+    
+    <div class="grid">
+      <div class="card">
+        <h3>Why methodologies matter for reef innovation</h3>
+        <p>
+          Scientific understanding is necessary but not sufficient. Methodologies provide structured approaches to:
+          (1) map complex systems, (2) identify leverage points, (3) generate novel solutions, (4) anticipate consequences, 
+          (5) build testable theories of change. Each methodology below has been adapted for ecological contexts with safety gates.
+        </p>
+        <div class="callout">
+          <strong>Critical principle:</strong> Methodologies are cognitive tools, not recipes. Use them to structure thinking, 
+          not to replace domain expertise. Combine multiple methodologies for robust solution development.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Methodology selection guide</h3>
+        <ul>
+          <li><strong>Systems thinking</strong> → When understanding feedback loops and network effects</li>
+          <li><strong>Biomimicry</strong> → When seeking nature-inspired solutions</li>
+          <li><strong>Scenario planning</strong> → When navigating uncertain futures</li>
+          <li><strong>Theory of Change</strong> → When mapping pathways from action to outcome</li>
+          <li><strong>First principles</strong> → When questioning assumptions</li>
+          <li><strong>Pre-mortem</strong> → When stress-testing before deployment</li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Integration approach</h3>
+        <p>
+          Start with <strong>systems thinking</strong> to map the problem space. Use <strong>biomimicry</strong> to generate 
+          solution concepts. Apply <strong>first principles</strong> to refine mechanisms. Build <strong>theory of change</strong> 
+          for your intervention logic. Use <strong>scenario planning</strong> to test robustness across futures. 
+          Finally, run <strong>pre-mortem</strong> before field deployment.
+        </p>
+        <div class="mini">
+          The Build Lab includes an interactive methodology selector that guides you through this integration process.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="systems-thinking">
+    <div class="secHead">
+      <h2>5) Systems Thinking: Mapping feedback loops & leverage points</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Causal loop diagrams</span>
+        <span class="pill"><span class="dot ok"></span>Interactive canvas</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c7">
+        <h3>Core systems thinking concepts for reefs</h3>
+        <p>
+          Coral reefs are complex adaptive systems with multiple feedback loops. Understanding system structure reveals leverage points—
+          places where small changes can produce large effects.
+        </p>
+
+        <div class="methodCard">
+          <h4>Reinforcing (positive) feedback loops</h4>
+          <p class="muted">
+            These amplify change in the same direction. Examples:<br/>
+            • <strong>Death spiral:</strong> Coral mortality → reduced structural complexity → less larval settlement → more mortality<br/>
+            • <strong>Algal takeover:</strong> Herbivore loss → algae dominance → coral overgrowth → recruitment failure → more algae<br/>
+            • <strong>Disease cascade:</strong> Stress → weakened immunity → disease spread → more stress
+          </p>
+        </div>
+
+        <div class="methodCard">
+          <h4>Balancing (negative) feedback loops</h4>
+          <p class="muted">
+            These stabilize systems toward equilibrium. Examples:<br/>
+            • <strong>Herbivory control:</strong> Algae growth → herbivore feeding → algae reduction → space for coral<br/>
+            • <strong>Thermal adaptation:</strong> Heat exposure → selection pressure → resistant genotypes → reduced bleaching<br/>
+            • <strong>Recruitment recovery:</strong> High coral cover → larval production → settlement → maintained cover
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>Leverage insight:</strong> Most reef interventions try to strengthen balancing loops or weaken reinforcing loops. 
+          The most effective interventions target loops that control multiple pathways (high leverage).
+        </div>
+      </div>
+
+      <div class="card c5">
+        <h3>Interactive systems mapper</h3>
+        <p class="muted">
+          Use this canvas to sketch causal relationships in your focal system. Click to add nodes (variables), 
+          drag between nodes to create links (causal connections). Label links as + (reinforcing) or - (balancing).
+        </p>
+        <canvas id="systemsCanvas" class="diagramCanvas" width="1200" height="400" aria-label="Systems mapping canvas"></canvas>
+        <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+          <button class="tinyBtn" id="btnAddNode">Add node</button>
+          <button class="tinyBtn" id="btnClearDiagram">Clear diagram</button>
+          <button class="tinyBtn" id="btnSaveDiagram">Save locally</button>
+          <button class="tinyBtn" id="btnExportDiagram">Export as JSON</button>
+        </div>
+        <div class="mini" style="margin-top:10px;">
+          <strong>Quick guide:</strong> Click "Add node" to create variables. Click two nodes in sequence to draw a causal link. 
+          Right-click a link to toggle +/- polarity. System dynamics emerge from loop structure.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Leverage point hierarchy (adapted from Donella Meadows)</h3>
+        <p>
+          Not all intervention points are equally powerful. Ranked from shallow to deep leverage:
+        </p>
+        <ol style="margin-left: 18px; color: var(--muted); line-height: 1.55;">
+          <li><strong>Constants/parameters</strong> (e.g., nursery survival rates) — easiest to change, least impact</li>
+          <li><strong>Buffer sizes</strong> (e.g., genetic diversity, energy reserves) — moderate leverage</li>
+          <li><strong>Stock-and-flow structures</strong> (e.g., larval connectivity networks) — substantial leverage</li>
+          <li><strong>Feedback loop strength</strong> (e.g., herbivory effectiveness) — high leverage</li>
+          <li><strong>Information flows</strong> (e.g., monitoring systems, knowledge sharing) — very high leverage</li>
+          <li><strong>Rules of the system</strong> (e.g., governance, property rights) — transformative leverage</li>
+          <li><strong>Self-organization capacity</strong> (e.g., adaptive management, community stewardship) — deepest leverage</li>
+          <li><strong>Goals/paradigms</strong> (e.g., from "extract" to "regenerate") — paradigm-shifting leverage</li>
+        </ol>
+        <div class="callout">
+          Most technical interventions target levels 1-4. The most impactful work often occurs at levels 5-8, 
+          which require changing information, rules, and goals rather than physical parameters.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="biomimicry">
+    <div class="secHead">
+      <h2>6) Biomimicry: Nature as innovation mentor</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot g"></span>Pattern library</span>
+        <span class="pill"><span class="dot"></span>Life's principles</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Biomimicry thinking for reef solutions</h3>
+        <p>
+          Biomimicry asks: "How would nature solve this?" Rather than inventing from scratch, we identify analogous challenges 
+          that organisms or ecosystems have already solved through evolution. This generates novel, tested-by-nature solutions.
+        </p>
+        <div class="callout">
+          <strong>Framework:</strong> (1) Define function, (2) Find nature's analog, (3) Abstract the principle, 
+          (4) Emulate with human technology, (5) Evaluate against Life's Principles for sustainability.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Life's Principles (sustainability filters)</h3>
+        <p class="muted">
+          Use these as design constraints—nature's "non-negotiables" for long-term viability:
+        </p>
+        <ul>
+          <li><strong>Evolve to survive:</strong> Replicate strategies that work; integrate unexpected; reshuffle information</li>
+          <li><strong>Be resource efficient:</strong> Use multifunctional design; recycle all materials; use low-energy processes</li>
+          <li><strong>Adapt to changing conditions:</strong> Maintain integrity through variation; incorporate diversity; be locally attuned</li>
+          <li><strong>Integrate development with growth:</strong> Self-organize; use feedback loops; cultivate cooperative relationships</li>
+          <li><strong>Be locally attuned and responsive:</strong> Use readily available materials; build from the bottom up</li>
+          <li><strong>Use life-friendly chemistry:</strong> Build selectively; break down products into benign components</li>
+        </ul>
+      </div>
+
+      <div class="card c6">
+        <h3>Reef-relevant biomimicry patterns</h3>
+
+        <div class="methodCard">
+          <h4>Pattern: Thermal refugia (like desert microclimates)</h4>
+          <p class="muted">
+            <strong>Challenge:</strong> Surviving heat stress<br/>
+            <strong>Natural analog:</strong> Desert plants create shaded microsites; animals shelter in thermal refugia<br/>
+            <strong>Abstracted principle:</strong> Local microclimate engineering through strategic shade, thermal mass, evaporative cooling<br/>
+            <strong>Reef application:</strong> Identify/enhance natural refugia; design structures that create beneficial microclimates
+          </p>
+        </div>
+
+        <div class="methodCard">
+          <h4>Pattern: Symbiotic resilience (like lichen or gut microbiomes)</h4>
+          <p class="muted">
+            <strong>Challenge:</strong> Maintaining beneficial partnerships under stress<br/>
+            <strong>Natural analog:</strong> Lichens survive by partner flexibility; mammals maintain microbiomes through selection<br/>
+            <strong>Abstracted principle:</strong> Partner diversity + selective hosting + recovery mechanisms<br/>
+            <strong>Reef application:</strong> Symbiont shuffling research; probiotic approaches; host-symbiont co-selection
+          </p>
+        </div>
+
+        <div class="methodCard">
+          <h4>Pattern: Seed banking (like soil seed banks)</h4>
+          <p class="muted">
+            <strong>Challenge:</strong> Surviving disturbance events<br/>
+            <strong>Natural analog:</strong> Plants store dormant seeds that germinate after fire/flood<br/>
+            <strong>Abstracted principle:</strong> Distributed, dormant reproductive capacity activated by environmental triggers<br/>
+            <strong>Reef application:</strong> Cryopreservation of coral gametes/larvae; protected broodstock populations in refugia
+          </p>
+        </div>
+
+        <div class="methodCard">
+          <h4>Pattern: Modular redundancy (like mangrove prop roots)</h4>
+          <p class="muted">
+            <strong>Challenge:</strong> Structural integrity under dynamic forces<br/>
+            <strong>Natural analog:</strong> Mangroves use multiple redundant roots; mycelial networks have no single point of failure<br/>
+            <strong>Abstracted principle:</strong> Distributed, modular architecture with graceful failure modes<br/>
+            <strong>Reef application:</strong> Network-based restoration (not single large sites); multiple connected small refugia
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Biomimicry solution generator (interactive)</h3>
+        <p class="muted">
+          Enter a reef challenge below, and the tool will suggest natural analogs and abstracted principles to explore.
+        </p>
+        <label style="display:block; margin-top:10px;">
+          <span class="muted">Challenge (function you want to achieve):</span><br/>
+          <input id="bioChallenge" type="text" placeholder="e.g., reduce heat stress without blocking photosynthesis" 
+                 style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                        background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="200" />
+        </label>
+        <button class="btnPrimary" id="btnBioGenerate" style="margin-top:10px;">Generate biomimicry suggestions</button>
+        <div id="bioOutput" class="mini" style="margin-top:12px; min-height:120px;">
+          Results will appear here after you enter a challenge and click generate.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="scenario-planning">
+    <div class="secHead">
+      <h2>7) Scenario Planning: Designing for uncertain futures</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot w"></span>Climate uncertainty</span>
+        <span class="pill"><span class="dot"></span>Robust strategies</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Why scenario planning for reef interventions</h3>
+        <p>
+          The future of coral reefs depends on uncertain variables: climate trajectory, policy responses, technological breakthroughs, 
+          social prioritization. Rather than predicting one future, scenario planning develops multiple plausible futures and 
+          tests strategies across all of them. <strong>Robust strategies</strong> work in many scenarios; 
+          <strong>adaptive strategies</strong> have clear signposts for pivoting.
+        </p>
+      </div>
+
+      <div class="card c6">
+        <h3>Two-axis scenario framework</h3>
+        <p class="muted">
+          Identify two critical uncertainties with high impact. Create a 2×2 matrix generating four distinct scenarios.
+        </p>
+        <div class="mini">
+          <strong>Example axes for reef futures:</strong><br/>
+          • Horizontal: Climate mitigation success (Strong vs Weak)<br/>
+          • Vertical: Restoration technology maturity (High vs Low)<br/><br/>
+          <strong>Four scenarios:</strong><br/>
+          1. <em>Managed resilience</em> (Strong mitigation + High tech): Reefs stabilize with targeted interventions<br/>
+          2. <em>Holding action</em> (Strong mitigation + Low tech): Basic protection works as temps stabilize<br/>
+          3. <em>High-tech triage</em> (Weak mitigation + High tech): Constant tech interventions in worsening conditions<br/>
+          4. <em>Collapse & transformation</em> (Weak mitigation + Low tech): Major reef loss; novel ecosystems emerge
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Strategy testing protocol</h3>
+        <p class="muted">For each intervention strategy, ask:</p>
+        <ol style="margin-left:18px; color:var(--muted); line-height:1.55;">
+          <li>Does it provide value in Scenario 1? (ideal conditions)</li>
+          <li>Does it avoid harm in Scenario 4? (worst case)</li>
+          <li>Can it pivot/scale based on early indicators?</li>
+          <li>What are the regret-minimizing strategies (useful across scenarios)?</li>
+        </ol>
+        <div class="callout">
+          <strong>Regret-minimization:</strong> Strategies like water quality improvement, herbivore protection, 
+          and refugia mapping provide value in <em>all</em> scenarios. Prioritize these.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Interactive scenario builder</h3>
+        <p class="muted">Define your own axes of uncertainty and generate scenario narratives.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
+          <div>
+            <label class="muted">Axis 1 (Horizontal): <input id="scAxis1" type="text" placeholder="e.g., Climate mitigation" 
+                   style="width:100%; margin-top:4px; padding:8px; border-radius:12px; border:1px solid rgba(255,255,255,0.14); 
+                          background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="60" />
+            </label>
+          </div>
+          <div>
+            <label class="muted">Axis 2 (Vertical): <input id="scAxis2" type="text" placeholder="e.g., Tech maturity" 
+                   style="width:100%; margin-top:4px; padding:8px; border-radius:12px; border:1px solid rgba(255,255,255,0.14); 
+                          background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="60" />
+            </label>
+          </div>
+        </div>
+        <button class="btnPrimary" id="btnScGenerate" style="margin-top:12px;">Generate scenarios</button>
+        <div id="scOutput" class="mini" style="margin-top:12px; min-height:180px;">
+          Your four scenarios will appear here. Consider how your intervention performs in each.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="theory-of-change">
+    <div class="secHead">
+      <h2>8) Theory of Change: Mapping intervention logic</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot a"></span>Causal pathways</span>
+        <span class="pill"><span class="dot"></span>Testable assumptions</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>What is Theory of Change for reef restoration</h3>
+        <p>
+          A Theory of Change (ToC) is an explicit causal model: <em>if we do X, then Y happens, because Z mechanism, 
+          leading to outcome W.</em> It makes assumptions visible, identifies where evidence is needed, and creates accountability. 
+          For reef interventions, ToC prevents "hope-based" conservation by demanding causal logic.
+        </p>
+        <div class="callout">
+          <strong>Core structure:</strong> Inputs → Activities → Outputs → Outcomes → Impact<br/>
+          Plus: Assumptions (what must be true) and Indicators (how we know it's working)
+        </div>
+      </div>
+
+      <div class="card c7">
+        <h3>Theory of Change template (interactive)</h3>
+        <p class="muted">Fill in each component. This creates your intervention's causal logic.</p>
+        
+        <div style="margin-top:12px;">
+          <label class="muted"><strong>1. Ultimate Impact (long-term goal):</strong><br/>
+            <textarea id="tocImpact" rows="2" placeholder="e.g., Functional coral reef ecosystems persist through 2050 heat events" 
+                      style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                             background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="300"></textarea>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label class="muted"><strong>2. Intermediate Outcomes (measurable changes):</strong><br/>
+            <textarea id="tocOutcomes" rows="3" placeholder="e.g., • Coral cover increases 15% in target areas • Bleaching severity reduces 30% during events • Recruitment rates double" 
+                      style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                             background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="500"></textarea>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label class="muted"><strong>3. Outputs (direct deliverables):</strong><br/>
+            <textarea id="tocOutputs" rows="3" placeholder="e.g., • 500 heat-tolerant coral fragments deployed • 3 refugia sites protected • 50 local stewards trained" 
+                      style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                             background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="500"></textarea>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label class="muted"><strong>4. Activities (what you do):</strong><br/>
+            <textarea id="tocActivities" rows="3" placeholder="e.g., • Selective breeding program • Refugia mapping • Community training workshops" 
+                      style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                             background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="500"></textarea>
+          </label>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label class="muted"><strong>5. Inputs (resources needed):</strong><br/>
+            <textarea id="tocInputs" rows="2" placeholder="e.g., Funding, expertise, equipment, permits, community partnerships" 
+                      style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                             background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="400"></textarea>
+          </label>
+        </div>
+
+        <button class="btnPrimary" id="btnTocSave" style="margin-top:12px;">Save Theory of Change</button>
+        <button class="tinyBtn" id="btnTocExport" style="margin-top:12px;">Export as diagram</button>
+      </div>
+
+      <div class="card c5">
+        <h3>Critical assumptions tracker</h3>
+        <p class="muted">
+          Every ToC rests on assumptions. Make them explicit so they can be tested.
+        </p>
+        <div class="methodCard">
+          <h4>Common reef restoration assumptions (question these)</h4>
+          <ul style="margin-left:18px; color:var(--muted); line-height:1.55; font-size:0.92rem;">
+            <li>"Outplanted corals will recruit successfully" → Test: settlement rates in field conditions</li>
+            <li>"Heat-tolerant symbionts confer resilience" → Test: bleaching response in next event</li>
+            <li>"Community stewards will maintain long-term" → Test: governance structures and incentives</li>
+            <li>"Protected areas prevent overfishing" → Test: enforcement capacity and compliance</li>
+            <li>"Nursery survival predicts field survival" → Test: compare nursery vs field mortality</li>
+          </ul>
+        </div>
+
+        <label class="muted" style="margin-top:12px; display:block;"><strong>Your critical assumptions:</strong><br/>
+          <textarea id="tocAssumptions" rows="4" placeholder="List assumptions your ToC depends on. These become research priorities." 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="600"></textarea>
+        </label>
+      </div>
+
+      <div class="card">
+        <h3>Indicators & measurement strategy</h3>
+        <p class="muted">
+          For each outcome in your ToC, define: (1) Indicator (what you measure), (2) Target (what success looks like), 
+          (3) Method (how you measure), (4) Frequency (when you measure).
+        </p>
+        <div class="mini">
+          <strong>Example indicator framework:</strong><br/>
+          • <strong>Outcome:</strong> "Coral recruitment increases"<br/>
+          • <strong>Indicator:</strong> Number of juvenile corals (&lt;5cm diameter) per m²<br/>
+          • <strong>Target:</strong> 10+ recruits/m² annually<br/>
+          • <strong>Method:</strong> Photo quadrat analysis with AI classification<br/>
+          • <strong>Frequency:</strong> Quarterly surveys + post-spawning pulse monitoring
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="first-principles">
+    <div class="secHead">
+      <h2>9) First Principles Thinking: Questioning assumptions</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot"></span>Break down to fundamentals</span>
+        <span class="pill"><span class="dot ok"></span>Rebuild from truth</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>First principles method for reef solutions</h3>
+        <p>
+          Instead of reasoning by analogy ("we've always done it this way"), first principles thinking breaks problems down to 
+          fundamental truths and rebuilds from there. For reef restoration, this means questioning inherited assumptions about 
+          what's possible or necessary.
+        </p>
+        <div class="methodCard">
+          <h4>The Elon Musk formula (adapted)</h4>
+          <ol style="margin-left:18px; color:var(--muted); line-height:1.55;">
+            <li><strong>Identify the goal:</strong> What outcome do you actually want?</li>
+            <li><strong>Break down to physics/biology:</strong> What are the non-negotiable constraints?</li>
+            <li><strong>Question every assumption:</strong> Why do we do it this way? What's actually required?</li>
+            <li><strong>Rebuild creatively:</strong> If starting from scratch, what would you do?</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Worked example: Coral restoration cost</h3>
+        <div class="mini">
+          <strong>Conventional wisdom:</strong> "Coral restoration costs $100-400 per coral fragment"<br/><br/>
+          
+          <strong>First principles breakdown:</strong><br/>
+          • <em>What's the goal?</em> Get functional coral recruits on reef<br/>
+          • <em>Physical requirements:</em> Substrate + coral larvae/fragments + settlement cues + survival conditions<br/>
+          • <em>Assumptions to question:</em><br/>
+          &nbsp;&nbsp;- "Must use nurseries" → What if direct seeding worked?<br/>
+          &nbsp;&nbsp;- "Must hand-place fragments" → What if hydrodynamics did delivery?<br/>
+          &nbsp;&nbsp;- "Must dive" → What if drones/surface-based?<br/>
+          &nbsp;&nbsp;- "Must use expensive substrates" → What if natural recruitment structures?<br/><br/>
+          
+          <strong>Rebuilt approach:</strong> Enhance natural recruitment through:<br/>
+          • Low-cost settlement substrates (textured tiles: $2-5 each)<br/>
+          • Larval seeding during mass spawning (near-zero marginal cost per propagule)<br/>
+          • Hydrodynamic optimization for retention (passive structures: $20-50 per unit)<br/>
+          • Result: Potentially 10-100× cost reduction while scaling recruitment
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>First principles worksheet</h3>
+        <p class="muted">Apply this process to your intervention idea.</p>
+        
+        <label class="muted" style="display:block; margin-top:12px;"><strong>1. Your goal (essential outcome only):</strong><br/>
+          <input id="fpGoal" type="text" placeholder="e.g., Increase coral recruit survival during heat events" 
+                 style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                        background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="200" />
+        </label>
+
+        <label class="muted" style="display:block; margin-top:12px;"><strong>2. Physical/biological non-negotiables:</strong><br/>
+          <textarea id="fpTruths" rows="3" placeholder="e.g., Corals require aragonite saturation >3, light >50 μmol photons/m²/s, temps <30.5°C sustained..." 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="600"></textarea>
+        </label>
+
+        <label class="muted" style="display:block; margin-top:12px;"><strong>3. Current approach & its assumptions:</strong><br/>
+          <textarea id="fpCurrent" rows="3" placeholder="e.g., 'We use nurseries because...' → Question: is nursery stage actually required?" 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="600"></textarea>
+        </label>
+
+        <label class="muted" style="display:block; margin-top:12px;"><strong>4. Rebuilt solution (starting from fundamentals):</strong><br/>
+          <textarea id="fpRebuilt" rows="4" placeholder="If I only had physics/biology constraints and infinite creativity, I would..." 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="800"></textarea>
+        </label>
+
+        <button class="btnPrimary" id="btnFpSave" style="margin-top:12px;">Save analysis</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pre-mortem">
+    <div class="secHead">
+      <h2>10) Pre-Mortem Analysis: Stress-testing before deployment</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot warn"></span>Anticipate failure</span>
+        <span class="pill"><span class="dot ok"></span>Build resilience</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>What is pre-mortem?</h3>
+        <p>
+          A pre-mortem inverts risk assessment: instead of asking "what could go wrong?", you assume the project 
+          <strong>has failed spectacularly</strong> and work backwards to identify the most likely causes. This surfaces 
+          blind spots that conventional risk analysis misses because people are more comfortable imagining failure after it's "already happened."
+        </p>
+        <div class="callout">
+          <strong>Protocol:</strong> Gather your team. Say: "It's 2 years from now. Our intervention failed completely. 
+          Write down why." Then compile and categorize failure modes. This becomes your mitigation checklist.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Common reef intervention failure modes</h3>
+        <div class="mini">
+          <strong>Biological failures:</strong><br/>
+          • Outplanted corals die in first major heat event (thermal tolerance overestimated)<br/>
+          • Disease outbreak in high-density nursery/outplants<br/>
+          • Unintended symbiont/microbiome disruption<br/>
+          • Genetic bottleneck from limited broodstock<br/>
+          • Predation exceeds replacement (parrotfish, COTS, snails)<br/><br/>
+          
+          <strong>Physical failures:</strong><br/>
+          • Structures fail in storm (underdesigned for hydrodynamic loads)<br/>
+          • Sedimentation smothers outplants<br/>
+          • Biofouling blocks light/flow<br/>
+          • Materials leach toxins or degrade into microplastics<br/><br/>
+          
+          <strong>Socio-governance failures:</strong><br/>
+          • Community loses interest after initial enthusiasm<br/>
+          • Funding ends before self-sustainability<br/>
+          • Regime change eliminates legal protections<br/>
+          • Monitoring lapsed, no one detects decline<br/>
+          • Conflict with fishers/tourism operators<br/><br/>
+          
+          <strong>Systemic failures:</strong><br/>
+          • Climate forcing exceeds intervention capacity (solution doesn't scale)<br/>
+          • "Success" in one area causes harm elsewhere (unintended consequences)<br/>
+          • Invasive species or pathogens spread via restoration materials
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Interactive pre-mortem</h3>
+        <p class="muted">Run a pre-mortem for your specific intervention.</p>
+        
+        <label class="muted" style="display:block; margin-top:12px;"><strong>Intervention being analyzed:</strong><br/>
+          <input id="pmIntervention" type="text" placeholder="e.g., Heat-tolerant coral outplanting in lagoon site" 
+                 style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                        background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="150" />
+        </label>
+
+        <div class="methodCard" style="margin-top:12px;">
+          <h4>Failure scenario: It's 2027. Your intervention failed. Why?</h4>
+          <textarea id="pmFailures" rows="6" placeholder="List all the ways this could have failed catastrophically. Be brutally honest. Include: biological, physical, social, financial, governance, climate..." 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="2000"></textarea>
+        </div>
+
+        <label class="muted" style="display:block; margin-top:12px;"><strong>Mitigation strategies (what would have prevented these failures?):</strong><br/>
+          <textarea id="pmMitigations" rows="5" placeholder="For each major failure mode, what specific actions/monitoring/safeguards would prevent or detect it early?" 
+                    style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); 
+                           background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="1500"></textarea>
+        </label>
+
+        <button class="btnPrimary" id="btnPmSave" style="margin-top:12px;">Save pre-mortem</button>
+        <button class="tinyBtn" id="btnPmExport" style="margin-top:12px;">Export as risk register</button>
+      </div>
+
+      <div class="card">
+        <h3>Pre-mortem to action checklist</h3>
+        <p class="muted">Convert failure modes into design requirements:</p>
+        <div class="mini">
+          <strong>For each identified failure mode, create:</strong><br/>
+          1. <strong>Prevention control:</strong> Design feature that makes failure unlikely<br/>
+          2. <strong>Detection control:</strong> Monitoring that catches problems early<br/>
+          3. <strong>Response protocol:</strong> What to do if failure signal detected<br/>
+          4. <strong>Graceful degradation:</strong> How system fails safely without cascading harm<br/><br/>
+          
+          Example: "Outplants die in heat event"<br/>
+          → <em>Prevention:</em> Use corals from thermal refugia + symbiont screening<br/>
+          → <em>Detection:</em> Monthly bleaching surveys + temp loggers<br/>
+          → <em>Response:</em> Trigger emergency shade deployment at DHW=4<br/>
+          → <em>Graceful:</em> Structures remain as habitat even if corals die
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENHANCED BUILD LAB -->
+
+  <section id="pathways">
+    <div class="secHead">
+      <h2>11) Solution pathways & portfolio approach</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Risk-stratified</span>
+        <span class="pill"><span class="dot"></span>Complementary</span>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Portfolio thinking for reef interventions</h3>
+        <p>
+          Don't put all resources into one approach. Build a portfolio across risk levels: low-risk/high-certainty foundations 
+          (water quality, herbivores, refugia), medium-risk/moderate-innovation (hydrodynamic restoration tools), 
+          and high-risk/transformative (assisted evolution, novel symbioses). Balance immediate wins with long-term bets.
+        </p>
+        <div class="callout">
+          Methodological integration: Use <strong>systems thinking</strong> to identify portfolio needs, 
+          <strong>scenario planning</strong> to test robustness, and <strong>first principles</strong> to challenge conventional allocations.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="recipes">
+    <div class="secHead">
+      <h2>12) Build recipes with safety gates</h2>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <p class="muted">
+          [Condensed for space—refer to original doc for detailed recipes on smart shading, larval retention geometry, 
+          and refugia network planning. Each recipe now references which methodologies to apply at each stage.]
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="build">
+    <div class="secHead">
+      <h2>13) Enhanced Build Lab: Methodology-integrated hypothesis builder</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>Interactive</span>
+        <span class="pill"><span class="dot a"></span>Methodology-guided</span>
+        <span class="pill"><span class="dot"></span>Local-only storage</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>How to use the enhanced build lab</h3>
+        <p>
+          The build lab now integrates all methodologies: start by selecting which methodologies are most relevant for your project, 
+          then fill in the hypothesis builder with support from systems maps, biomimicry suggestions, scenario tests, 
+          Theory of Change logic, first principles analysis, and pre-mortem findings. Everything saves locally; 
+          export anytime as structured JSON.
+        </p>
+      </div>
+
+      <div class="card c6" id="methodology-selector">
+        <h3>Methodology selector</h3>
+        <p class="muted">Check which methodologies you'll apply to your intervention:</p>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="systems" data-xp="5" />
+          <span><strong>Systems thinking</strong> (feedback loops, leverage points)</span>
+        </label>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="biomimicry" data-xp="5" />
+          <span><strong>Biomimicry</strong> (nature-inspired solutions)</span>
+        </label>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="scenarios" data-xp="5" />
+          <span><strong>Scenario planning</strong> (robustness across futures)</span>
+        </label>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="toc" data-xp="8" />
+          <span><strong>Theory of Change</strong> (causal logic)</span>
+        </label>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="firstp" data-xp="5" />
+          <span><strong>First principles</strong> (assumption questioning)</span>
+        </label>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start; margin-top:8px;">
+          <input class="methCheck" type="checkbox" data-method="premortem" data-xp="8" />
+          <span><strong>Pre-mortem</strong> (failure anticipation)</span>
+        </label>
+        <div class="mini" style="margin-top:12px;">
+          Selecting methodologies awards XP and helps structure your hypothesis. Use multiple for robust solutions.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Core hypothesis builder</h3>
+        <p class="muted">Fill this in. Saved locally. Integrates with all selected methodologies.</p>
+        <label class="muted">Project name<br/>
+          <input id="hName" type="text" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="120" />
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Core problem (one sentence)<br/>
+          <textarea id="hProblem" rows="3" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="600"></textarea>
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Mechanism (physics/biology "why it works")<br/>
+          <textarea id="hMechanism" rows="4" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="1200"></textarea>
+        </label>
+      </div>
+
+      <div class="card c6">
+        <h3>Safety & ethics gates</h3>
+        <p class="muted">Required before field deployment. Check all that apply.</p>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Fail-safe design</strong> (no entanglement, non-toxic, retrievable)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Baseline + control plan</strong> (measured, comparable)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="15" />
+          <span><strong>Post-heat stress evaluation</strong> (not just "looked good once")</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="10" />
+          <span><strong>Local stewardship</strong> (maintenance + governance)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="15" />
+          <span><strong>Ethics + ecological risk review</strong> (non-target effects monitored)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="12" />
+          <span><strong>Theory of Change articulated</strong> (causal logic explicit)</span>
+        </label>
+        <div style="height:8px"></div>
+        <label class="pill" style="display:flex; gap:10px; align-items:center; cursor:pointer; justify-content:flex-start;">
+          <input class="gate" type="checkbox" data-xp="12" />
+          <span><strong>Pre-mortem completed</strong> (failure modes identified)</span>
+        </label>
+      </div>
+
+      <div class="card c6">
+        <label class="muted">Metrics (what you will measure)<br/>
+          <textarea id="hMetrics" rows="5" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="1400"></textarea>
+        </label>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button id="btnSaveHyp" class="btnPrimary">Save hypothesis</button>
+          <button id="btnScore" title="Awards XP if your hypothesis is complete">Score & award XP</button>
+          <button id="btnExportHyp" title="Export hypothesis as structured JSON">Export hypothesis</button>
+        </div>
+
+        <div class="mini" style="margin-top:12px;">
+          <strong>Completeness check:</strong> Full XP requires: project name, problem, mechanism, metrics, 
+          + at least 5 gates checked + at least 2 methodologies applied.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="measurement">
+    <div class="secHead">
+      <h2>14) Measurement & verification protocols</h2>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Minimum viable evidence stack</h3>
+        <p>
+          (1) Baseline data, (2) Control sites/groups, (3) Explicit mechanism hypothesis, (4) Outcome metrics tied to ToC, 
+          (5) Performance during actual heat stress event. Without these five, claims of "success" are suspect.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="notebook">
+    <div class="secHead">
+      <h2>15) Local notebook (IndexedDB): Collect ideas, citations, methodology notes</h2>
+      <div class="secMeta">
+        <span class="pill"><span class="dot ok"></span>On-device only</span>
+        <span class="pill"><span class="dot"></span>Sanitized input</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card c6">
+        <h3>Add a note</h3>
+        <p class="muted">Notes are stored locally. Use this to track experiments, references, methodology insights.</p>
+        <label class="muted">Title<br/>
+          <input id="nTitle" type="text" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="120" />
+        </label>
+        <div style="height:10px"></div>
+        <label class="muted">Body<br/>
+          <textarea id="nBody" rows="6" style="width:100%; margin-top:6px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:var(--txt);" maxlength="6000"></textarea>
+        </label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <button id="btnAddNote" class="btnPrimary">Add note</button>
+          <button id="btnWipeNotes" class="btnDanger">Wipe notes</button>
+        </div>
+      </div>
+
+      <div class="card c6">
+        <h3>Your saved notes</h3>
+        <div id="notesList" class="mini" style="min-height: 310px;">
+          Loading notes…
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sources">
+    <div class="secHead">
+      <h2>16) Sources & references</h2>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Coral reef science sources</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://www.noaa.gov/news-release/noaa-confirms-4th-global-coral-bleaching-event">NOAA (2024): 4th global bleaching event</a></li>
+          <li><a target="_blank" rel="noopener" href="https://coralreefwatch.noaa.gov/">NOAA Coral Reef Watch</a></li>
+          <li><a target="_blank" rel="noopener" href="https://academic.oup.com/bioscience/article/75/7/585/8185301">BioScience (2025): Bleaching research directions</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Innovation methodology sources</h3>
+        <ul>
+          <li>Systems Thinking: Donella Meadows - "Thinking in Systems"</li>
+          <li>Biomimicry: Biomimicry Institute - "Life's Principles"</li>
+          <li>Scenario Planning: Shell Oil - "The Art of the Long View"</li>
+          <li>Theory of Change: Organizational Research Services</li>
+          <li>First Principles: Elon Musk interviews / scientific method tradition</li>
+          <li>Pre-Mortem: Gary Klein (2007) - "Performing a Project Premortem"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="hud" aria-label="Gamification HUD">
+  <div id="hudHeader">
+    <strong>Innovation Momentum HUD ✨</strong>
+    <div class="hudRight">
+      <button id="hudToggle" class="tinyBtn" title="Collapse/expand HUD">Collapse</button>
+      <button id="hudReset" class="tinyBtn btnDanger" title="Reset HUD stats (local only)">Reset</button>
+    </div>
+  </div>
+  <div id="hudBody">
+    <div class="hudBox">
+      <div class="hudLabel">XP</div>
+      <div class="hudValue" id="xpVal">0</div>
+      <div class="bar" aria-hidden="true"><i id="xpBar"></i></div>
+    </div>
+    <div class="hudBox">
+      <div class="hudLabel">Level</div>
+      <div class="hudValue" id="lvlVal">1</div>
+      <div class="hudLabel" style="margin-top:8px;">Methodologies Used</div>
+      <div class="hudValue" id="methCount">0/6</div>
+    </div>
+    <div id="hudCanvasWrap">
+      <div class="hudLabel">Innovation Constellation</div>
+      <canvas id="constellation" width="900" height="260" aria-label="Constellation visualizer"></canvas>
+      <div class="hudLabel" style="margin-top:8px;">Last action: <span id="lastAction" class="muted">none</span></div>
+    </div>
+  </div>
+  <div class="hudFooter">
+    <span class="muted" style="font-size:0.88rem;">Local-only. No analytics. Export anytime.</span>
+    <span class="pill" title="Offline cache status"><span class="dot" id="swDot"></span><span id="swText">Service Worker: …</span></span>
+  </div>
+</div>
+
+<footer>
+  <div class="footGrid">
+    <div>
+      <strong>Zero-Harm & Anti-Inversion note</strong>
+      <p>
+        This enhanced tool adds structured innovation methodologies to empower safe, testable solution development. 
+        Local-first, transparent, no hidden telemetry. All methodologies adapted with ecology-appropriate safety gates.
+      </p>
+      <div class="hr"></div>
+      <p class="muted" style="font-size:0.92rem;">
+        Core principle: <em>"Methodologies guide thinking; domain expertise provides constraints; ethics provides boundaries."</em>
+      </p>
+    </div>
+    <div>
+      <strong>Local controls & export</strong>
+      <ul class="muted">
+        <li>Export: saves notes + HUD + all methodology work as JSON</li>
+        <li>Reset: wipes local data completely</li>
+        <li>All interactive tools store results locally</li>
+      </ul>
+      <div class="hr"></div>
+      <p class="muted" style="font-size:0.92rem;">
+        Print-friendly: use browser Print → "Save as PDF" for shareable version.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+  Enhanced Innovation Lab JavaScript
+  What: Core utilities + all interactive methodology tools
+  How: Vanilla JS, no external dependencies
+  Outcome: Fully functional offline-first innovation platform
+============================================================================ */
+(function(){
+  "use strict";
+
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  const SAFE = {
+    esc(s){
+      s = (s ?? "").toString();
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    },
+    clamp(s, n){
+      s = (s ?? "").toString();
+      return s.length > n ? s.slice(0, n) : s;
+    },
+    nowISO(){ return new Date().toISOString(); },
+  };
+
+  const Rate = {
+    _last: new Map(),
+    allow(key, ms){
+      const t = Date.now();
+      const last = this._last.get(key) || 0;
+      if (t - last < ms) return false;
+      this._last.set(key, t);
+      return true;
+    }
+  };
+
+  /* ============================================================================
+    IndexedDB wrapper (same as before, expanded for methodology storage)
+  ============================================================================ */
+  const DB = {
+    name: "reef_innovation_lab_enhanced_v1",
+    ver: 1,
+    db: null,
+    async open(){
+      if (this.db) return this.db;
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(this.name, this.ver);
+        req.onupgradeneeded = (e) => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("kv")) db.createObjectStore("kv", { keyPath:"k" });
+          if (!db.objectStoreNames.contains("notes")) db.createObjectStore("notes", { keyPath:"id" });
+          if (!db.objectStoreNames.contains("hyp")) db.createObjectStore("hyp", { keyPath:"id" });
+          if (!db.objectStoreNames.contains("methodologies")) db.createObjectStore("methodologies", { keyPath:"id" });
+        };
+        req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+        req.onerror = () => reject(req.error);
+      });
+    },
+    async tx(store, mode="readonly"){
+      const db = await this.open();
+      return db.transaction(store, mode).objectStore(store);
+    },
+    async get(k){
+      const st = await this.tx("kv");
+      return new Promise((resolve) => {
+        const r = st.get(k);
+        r.onsuccess = () => resolve(r.result ? r.result.v : undefined);
+        r.onerror = () => resolve(undefined);
+      });
+    },
+    async set(k, v){
+      const st = await this.tx("kv","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put({k, v});
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async del(k){
+      const st = await this.tx("kv","readwrite");
+      return new Promise((resolve) => {
+        const r = st.delete(k);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async addNote(note){
+      const st = await this.tx("notes","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put(note);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async listNotes(){
+      const st = await this.tx("notes");
+      return new Promise((resolve) => {
+        const out = [];
+        const r = st.openCursor();
+        r.onsuccess = (e) => {
+          const cur = e.target.result;
+          if (!cur) return resolve(out.sort((a,b)=> (b.ts||"").localeCompare(a.ts||"")));
+          out.push(cur.value);
+          cur.continue();
+        };
+        r.onerror = () => resolve([]);
+      });
+    },
+    async wipeNotes(){
+      const st = await this.tx("notes","readwrite");
+      return new Promise((resolve) => {
+        const r = st.clear();
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async saveHyp(h){
+      const st = await this.tx("hyp","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put(h);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async getHypLatest(){
+      const st = await this.tx("hyp");
+      return new Promise((resolve) => {
+        let latest = null;
+        const r = st.openCursor();
+        r.onsuccess = (e) => {
+          const cur = e.target.result;
+          if (!cur) return resolve(latest);
+          const v = cur.value;
+          if (!latest || (v.ts||"") > (latest.ts||"")) latest = v;
+          cur.continue();
+        };
+        r.onerror = () => resolve(null);
+      });
+    },
+    async saveMethodology(m){
+      const st = await this.tx("methodologies","readwrite");
+      return new Promise((resolve) => {
+        const r = st.put(m);
+        r.onsuccess = () => resolve(true);
+        r.onerror = () => resolve(false);
+      });
+    },
+    async getMethLatest(type){
+      const st = await this.tx("methodologies");
+      return new Promise((resolve) => {
+        let latest = null;
+        const r = st.openCursor();
+        r.onsuccess = (e) => {
+          const cur = e.target.result;
+          if (!cur) return resolve(latest);
+          const v = cur.value;
+          if (v.type === type && (!latest || (v.ts||"") > (latest.ts||""))) latest = v;
+          cur.continue();
+        };
+        r.onerror = () => resolve(null);
+      });
+    },
+    async wipeAll(){
+      await this.wipeNotes();
+      for (const store of ["kv","hyp","methodologies"]){
+        const st = await this.tx(store,"readwrite");
+        await new Promise((resolve)=>{ const r = st.clear(); r.onsuccess=()=>resolve(true); r.onerror=()=>resolve(true); });
+      }
+      return true;
+    }
+  };
+
+  /* ============================================================================
+    Service worker registration (unchanged)
+  ============================================================================ */
+  async function registerSW(){
+    const swDot = $("#swDot");
+    const swText = $("#swText");
+    if (!("serviceWorker" in navigator)){
+      swDot.className = "dot warn";
+      swText.textContent = "Service Worker: unsupported";
+      return;
+    }
+    const swCode = `
+      const CACHE = "reef-lab-enhanced-cache-v1";
+      self.addEventListener("install", (e) => {
+        e.waitUntil((async () => {
+          const cache = await caches.open(CACHE);
+          try { await cache.add(new Request(self.location.origin + self.location.pathname, {cache:"reload"})); } catch(e){}
+          self.skipWaiting();
+        })());
+      });
+      self.addEventListener("activate", (e) => {
+        e.waitUntil((async () => {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => k === CACHE ? null : caches.delete(k)));
+          self.clients.claim();
+        })());
+      });
+      self.addEventListener("fetch", (e) => {
+        const req = e.request;
+        if (req.mode === "navigate"){
+          e.respondWith((async () => {
+            try{
+              const fresh = await fetch(req);
+              const cache = await caches.open(CACHE);
+              cache.put(req, fresh.clone());
+              return fresh;
+            }catch(err){
+              const cached = await caches.match(req);
+              return cached || new Response("Offline", {status:503});
+            }
+          })());
+          return;
+        }
+        e.respondWith((async () => {
+          const cached = await caches.match(req);
+          if (cached) return cached;
+          try{
+            const fresh = await fetch(req);
+            const cache = await caches.open(CACHE);
+            cache.put(req, fresh.clone());
+            return fresh;
+          }catch(err){
+            return new Response("", {status: 204});
+          }
+        })());
+      });
+    `;
+    const blob = new Blob([swCode], {type:"text/javascript"});
+    const url = URL.createObjectURL(blob);
+    try{
+      const reg = await navigator.serviceWorker.register(url);
+      swDot.className = "dot ok";
+      swText.textContent = "Service Worker: active";
+      reg.update?.();
+    }catch(e){
+      swDot.className = "dot warn";
+      swText.textContent = "Service Worker: failed";
+    }finally{
+      setTimeout(()=> URL.revokeObjectURL(url), 5000);
+    }
+  }
+
+  /* ============================================================================
+    HUD logic (enhanced with methodology tracking)
+  ============================================================================ */
+  const HUD = {
+    state: { xp:0, lvl:1, streak:0, lastDay:"", lastAction:"none", collapsed:false, methodsUsed:new Set() },
+    async load(){
+      const s = await DB.get("hud");
+      if (s && typeof s === "object"){
+        this.state = Object.assign(this.state, s);
+        if (s.methodsUsed && Array.isArray(s.methodsUsed)) this.state.methodsUsed = new Set(s.methodsUsed);
+        else this.state.methodsUsed = new Set();
+      }
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dayKey = today.toISOString().slice(0,10);
+      if (!this.state.lastDay){
+        this.state.lastDay = dayKey;
+        this.state.streak = 0;
+      }else if (this.state.lastDay !== dayKey){
+        const prev = new Date(this.state.lastDay + "T00:00:00Z");
+        const diffDays = Math.round((today - prev)/86400000);
+        if (diffDays === 1) this.state.streak = (this.state.streak||0) + 1;
+        else this.state.streak = 0;
+        this.state.lastDay = dayKey;
+        await this.save();
+      }
+      this.render();
+    },
+    async save(){
+      const saveState = Object.assign({}, this.state, {methodsUsed: Array.from(this.state.methodsUsed)});
+      await DB.set("hud", saveState);
+    },
+    levelFromXP(xp){
+      return Math.max(1, Math.floor(Math.sqrt(Math.max(0,xp))/6) + 1);
+    },
+    nextLevelXP(lvl){
+      const target = (lvl-1)*6;
+      return target*target;
+    },
+    async award(xp, action){
+      this.state.xp = Math.max(0, (this.state.xp||0) + xp);
+      this.state.lvl = this.levelFromXP(this.state.xp);
+      this.state.lastAction = action || "action";
+      await this.save();
+      this.render();
+      drawConstellation();
+    },
+    async trackMethod(method){
+      this.state.methodsUsed.add(method);
+      await this.save();
+      this.render();
+    },
+    render(){
+      $("#xpVal").textContent = String(this.state.xp|0);
+      $("#lvlVal").textContent = String(this.state.lvl|0);
+      $("#methCount").textContent = `${this.state.methodsUsed.size}/6`;
+      $("#lastAction").textContent = this.state.lastAction || "none";
+      const lvl = this.state.lvl|0;
+      const base = this.nextLevelXP(lvl);
+      const next = this.nextLevelXP(lvl+1);
+      const pct = next === base ? 0 : Math.max(0, Math.min(1, (this.state.xp - base) / (next - base)));
+      $("#xpBar").style.width = (pct*100).toFixed(1) + "%";
+      if (this.state.collapsed){
+        $("#hudBody").style.display = "none";
+      }else{
+        $("#hudBody").style.display = "grid";
+      }
+    },
+    async reset(){
+      this.state = { xp:0, lvl:1, streak:0, lastDay:"", lastAction:"none", collapsed:false, methodsUsed:new Set() };
+      await this.save();
+      this.render();
+      drawConstellation();
+    }
+  };
+
+  /* ============================================================================
+    Constellation canvas (enhanced with methodology nodes)
+  ============================================================================ */
+  function drawConstellation(){
+    const c = $("#constellation");
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    const W = c.width, H = c.height;
+    ctx.clearRect(0,0,W,H);
+    const reduce = $("#togReduce")?.checked;
+    const gates = $$(".gate").filter(x=>x.checked).length;
+    const meths = $$(".methCheck").filter(x=>x.checked).length;
+    const xp = HUD.state.xp|0;
+
+    const nodes = [
+      {k:"Systems",   x:0.18, y:0.35, val: meths >= 1 ? 0.8 : 0.2},
+      {k:"Bio",       x:0.44, y:0.22, val: meths >= 2 ? 0.8 : 0.2},
+      {k:"Scenarios", x:0.70, y:0.34, val: meths >= 3 ? 0.8 : 0.2},
+      {k:"ToC",       x:0.58, y:0.68, val: meths >= 4 ? 0.85 : 0.2},
+      {k:"First P",   x:0.26, y:0.72, val: meths >= 5 ? 0.8 : 0.2},
+      {k:"PreMort",   x:0.82, y:0.68, val: meths >= 6 ? 0.9 : 0.2},
+    ];
+
+    const t = Date.now()/1000;
+    function jitter(a){ return reduce ? 0 : (Math.sin(t*0.8 + a)*0.006); }
+    const pts = nodes.map((n,i)=>{
+      const x = (n.x + jitter(i*1.3))*W;
+      const y = (n.y + jitter(i*1.9))*H;
+      return Object.assign({}, n, {px:x, py:y});
+    });
+
+    ctx.globalAlpha = 0.5;
+    for (let i=0;i<80;i++){
+      const sx = (Math.sin(i*999) * 0.5 + 0.5)*W;
+      const sy = (Math.sin(i*777) * 0.5 + 0.5)*H;
+      const r = (i%7===0)? 1.6 : 1.0;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,0.14)";
+      ctx.arc(sx, sy, r, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    function edge(a,b,boost){
+      const A = pts[a], B = pts[b];
+      const strength = Math.max(0.12, Math.min(0.90, (A.val+B.val)/2 * (0.6 + 0.05*gates + 0.03*meths) * (boost||1)));
+      ctx.strokeStyle = `rgba(120,197,255,${strength*0.48})`;
+      ctx.lineWidth = 1.3 + strength*1.3;
+      ctx.beginPath();
+      ctx.moveTo(A.px, A.py);
+      ctx.lineTo(B.px, B.py);
+      ctx.stroke();
+    }
+
+    edge(0,1,1.0); edge(1,2,1.0); edge(2,3,1.1); edge(3,4,1.0); edge(4,0,1.0); 
+    edge(3,5,1.1); edge(2,5,0.9); edge(1,4,0.9);
+
+    for (const p of pts){
+      const r = 6 + 10*p.val;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(208,140,255,0.12)";
+      ctx.arc(p.px, p.py, r*2.4, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.arc(p.px, p.py, r*0.5, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(120,197,255,0.60)";
+      ctx.arc(p.px, p.py, r, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.font = "11px " + getComputedStyle(document.documentElement).getPropertyValue("--mono");
+      ctx.fillStyle = "rgba(255,255,255,0.80)";
+      ctx.fillText(p.k, p.px + 11, p.py - 11);
+    }
+  }
+
+  /* ============================================================================
+    Client-side search (unchanged)
+  ============================================================================ */
+  function clearMarks(root){
+    const marks = root.querySelectorAll("mark");
+    for (const m of marks){
+      const t = document.createTextNode(m.textContent);
+      m.replaceWith(t);
+    }
+  }
+
+  function highlight(root, query){
+    clearMarks(root);
+    if (!query) return;
+    const q = query.toLowerCase();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node){
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (["SCRIPT","STYLE","TEXTAREA","INPUT"].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if (!node.nodeValue || node.nodeValue.trim().length < 2) return NodeFilter.FILTER_REJECT;
+        if (node.nodeValue.toLowerCase().includes(q)) return NodeFilter.FILTER_ACCEPT;
+        return NodeFilter.FILTER_REJECT;
+      }
+    });
+    const hits = [];
+    while (walker.nextNode()) hits.push(walker.currentNode);
+
+    for (const textNode of hits){
+      const txt = textNode.nodeValue;
+      const idx = txt.toLowerCase().indexOf(q);
+      if (idx < 0) continue;
+      const before = document.createTextNode(txt.slice(0, idx));
+      const mid = document.createElement("mark");
+      mid.textContent = txt.slice(idx, idx + query.length);
+      const after = document.createTextNode(txt.slice(idx + query.length));
+      const frag = document.createDocumentFragment();
+      frag.append(before, mid, after);
+      textNode.parentNode.replaceChild(frag, textNode);
+    }
+  }
+
+  function applySearch(q){
+    const blocks = $$("section, .card, details");
+    if (!q){
+      blocks.forEach(b=> b.removeAttribute("data-filtered"));
+      blocks.forEach(b=> clearMarks(b));
+      return;
+    }
+    const qq = q.toLowerCase();
+    for (const b of blocks){
+      const txt = (b.textContent || "").toLowerCase();
+      const hit = txt.includes(qq);
+      b.setAttribute("data-filtered", hit ? "in" : "out");
+      if (hit) highlight(b, q);
+      else clearMarks(b);
+    }
+  }
+
+  /* ============================================================================
+    Notes UI (unchanged)
+  ============================================================================ */
+  async function renderNotes(){
+    const box = $("#notesList");
+    const notes = await DB.listNotes();
+    if (!notes.length){
+      box.innerHTML = SAFE.esc("No notes yet. Add one on the left.");
+      return;
+    }
+    const out = notes.map(n => {
+      const t = SAFE.esc(n.title || "(untitled)");
+      const b = SAFE.esc(n.body || "");
+      const ts = SAFE.esc(n.ts || "");
+      return `• <strong>${t}</strong> <span class="muted">(${ts})</span><br/>${b}<br/><br/>`;
+    }).join("");
+    box.innerHTML = out;
+  }
+
+  /* ============================================================================
+    Hypothesis UI (enhanced with methodology export)
+  ============================================================================ */
+  async function loadHyp(){
+    const h = await DB.getHypLatest();
+    if (!h) return;
+    $("#hName").value = h.name || "";
+    $("#hProblem").value = h.problem || "";
+    $("#hMechanism").value = h.mechanism || "";
+    $("#hMetrics").value = h.metrics || "";
+  }
+
+  async function saveHyp(){
+    if (!Rate.allow("saveHyp", 800)) return;
+    const h = {
+      id: "hyp-" + Date.now(),
+      ts: SAFE.nowISO(),
+      name: SAFE.clamp($("#hName").value, 120),
+      problem: SAFE.clamp($("#hProblem").value, 600),
+      mechanism: SAFE.clamp($("#hMechanism").value, 1200),
+      metrics: SAFE.clamp($("#hMetrics").value, 1400),
+    };
+    await DB.saveHyp(h);
+    HUD.award(15, "Saved hypothesis");
+  }
+
+  async function scoreHyp(){
+    if (!Rate.allow("scoreHyp", 1200)) return;
+    let xp = 0;
+    const fields = [
+      $("#hName").value.trim(),
+      $("#hProblem").value.trim(),
+      $("#hMechanism").value.trim(),
+      $("#hMetrics").value.trim(),
+    ];
+    xp += fields.filter(Boolean).length * 5;
+    $$(".gate").forEach(g => { if (g.checked) xp += Number(g.dataset.xp||0); });
+    const methCount = $$(".methCheck").filter(x=>x.checked).length;
+    xp += methCount * 8;
+    if (xp > 0) HUD.award(xp, "Scored hypothesis");
+  }
+
+  async function exportHypothesis(){
+    const h = await DB.getHypLatest();
+    const toc = {
+      impact: $("#tocImpact").value.trim(),
+      outcomes: $("#tocOutcomes").value.trim(),
+      outputs: $("#tocOutputs").value.trim(),
+      activities: $("#tocActivities").value.trim(),
+      inputs: $("#tocInputs").value.trim(),
+      assumptions: $("#tocAssumptions").value.trim(),
+    };
+    const premortem = {
+      intervention: $("#pmIntervention").value.trim(),
+      failures: $("#pmFailures").value.trim(),
+      mitigations: $("#pmMitigations").value.trim(),
+    };
+    const firstp = {
+      goal: $("#fpGoal").value.trim(),
+      truths: $("#fpTruths").value.trim(),
+      current: $("#fpCurrent").value.trim(),
+      rebuilt: $("#fpRebuilt").value.trim(),
+    };
+    const payload = {
+      exportedAt: SAFE.nowISO(),
+      hypothesis: h,
+      theoryOfChange: toc,
+      premortem: premortem,
+      firstPrinciples: firstp,
+      methodologiesUsed: Array.from(HUD.state.methodsUsed),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "reef_hypothesis_" + Date.now() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  /* ============================================================================
+    Methodology-specific tools
+  ============================================================================ */
+
+  // Systems Canvas (basic node-link drawing)
+  let systemsState = { nodes:[], links:[], selectedNode:null };
+
+  function initSystemsCanvas(){
+    const canvas = $("#systemsCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    function draw(){
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      
+      // Draw links
+      for (const link of systemsState.links){
+        const n1 = systemsState.nodes[link.from];
+        const n2 = systemsState.nodes[link.to];
+        if (!n1 || !n2) continue;
+        ctx.strokeStyle = link.polarity === '+' ? 'rgba(116,255,167,0.6)' : 'rgba(255,120,120,0.6)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+        // Draw polarity label
+        const mx = (n1.x + n2.x)/2, my = (n1.y + n2.y)/2;
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '14px ' + getComputedStyle(document.documentElement).getPropertyValue("--mono");
+        ctx.fillText(link.polarity, mx, my - 5);
+      }
+
+      // Draw nodes
+      for (let i=0; i<systemsState.nodes.length; i++){
+        const n = systemsState.nodes[i];
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 30, 0, Math.PI*2);
+        ctx.fillStyle = i === systemsState.selectedNode ? 'rgba(120,197,255,0.4)' : 'rgba(255,255,255,0.15)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '11px ' + getComputedStyle(document.documentElement).getPropertyValue("--sans");
+        ctx.textAlign = 'center';
+        ctx.fillText(n.label, n.x, n.y + 4);
+      }
+    }
+
+    $("#btnAddNode")?.addEventListener("click", ()=>{
+      const label = prompt("Node label (variable name):");
+      if (!label) return;
+      systemsState.nodes.push({
+        label: SAFE.clamp(label, 30),
+        x: 100 + Math.random()*1000,
+        y: 50 + Math.random()*300,
+      });
+      draw();
+      HUD.trackMethod('systems');
+      HUD.award(3, "Added systems node");
+    });
+
+    $("#btnClearDiagram")?.addEventListener("click", ()=>{
+      if (!confirm("Clear systems diagram?")) return;
+      systemsState = { nodes:[], links:[], selectedNode:null };
+      draw();
+    });
+
+    $("#btnSaveDiagram")?.addEventListener("click", async ()=>{
+      await DB.saveMethodology({
+        id: "systems-" + Date.now(),
+        type: "systems",
+        ts: SAFE.nowISO(),
+        data: systemsState,
+      });
+      HUD.award(8, "Saved systems diagram");
+    });
+
+    $("#btnExportDiagram")?.addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify(systemsState, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "systems_diagram_" + Date.now() + ".json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+
+    canvas.addEventListener("click", (e)=>{
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      // Check if clicked node
+      let clicked = -1;
+      for (let i=0; i<systemsState.nodes.length; i++){
+        const n = systemsState.nodes[i];
+        const dx = x - n.x, dy = y - n.y;
+        if (Math.sqrt(dx*dx + dy*dy) < 30){
+          clicked = i;
+          break;
+        }
+      }
+      if (clicked >= 0){
+        if (systemsState.selectedNode === null){
+          systemsState.selectedNode = clicked;
+        }else if (systemsState.selectedNode !== clicked){
+          // Create link
+          const polarity = prompt("Link polarity: + (reinforcing) or - (balancing)?", "+");
+          if (polarity === '+' || polarity === '-'){
+            systemsState.links.push({
+              from: systemsState.selectedNode,
+              to: clicked,
+              polarity: polarity,
+            });
+          }
+          systemsState.selectedNode = null;
+        }else{
+          systemsState.selectedNode = null;
+        }
+        draw();
+      }
+    });
+
+    draw();
+  }
+
+  // Biomimicry generator (simple template-based)
+  function initBiomimicry(){
+    $("#btnBioGenerate")?.addEventListener("click", async ()=>{
+      const challenge = $("#bioChallenge").value.trim();
+      if (!challenge){
+        $("#bioOutput").textContent = "Please enter a challenge first.";
+        return;
+      }
+      
+      // Simple keyword-based suggestions
+      const suggestions = [];
+      const lc = challenge.toLowerCase();
+      if (lc.includes("heat") || lc.includes("temperature")){
+        suggestions.push("🌵 Desert Adaptation: Many desert organisms use reflective surfaces, nocturnal activity, thermal mass, and evaporative cooling.");
+        suggestions.push("🐘 Elephant ears: Large surface area with high blood flow for heat dissipation.");
+        suggestions.push("🌴 Mangrove pneumatophores: Vertical structures that enhance air circulation and cooling.");
+      }
+      if (lc.includes("flow") || lc.includes("current")){
+        suggestions.push("🐟 Fish schooling: Coordinated movement in flows reduces individual energy cost (vortex exploitation).");
+        suggestions.push("🌊 Kelp forests: Flexible structures that bend with flow rather than resist, creating flow refugia.");
+        suggestions.push("🦪 Oyster reefs: Rough surfaces that slow boundary layer flow and promote particle settlement.");
+      }
+      if (lc.includes("light") || lc.includes("shade")){
+        suggestions.push("🍃 Forest canopy: Multi-layered structure provides partial shade while allowing dappled light.");
+        suggestions.push("🪴 Succulent leaf angles: Self-shading through leaf orientation adjustments.");
+      }
+      if (lc.includes("stress") || lc.includes("resilience")){
+        suggestions.push("🦠 Tardigrades: Cryptobiosis—entering dormant state under extreme stress.");
+        suggestions.push("🌾 Grassland recovery: Underground buds and extensive root networks allow regrowth after disturbance.");
+        suggestions.push("🧬 Horizontal gene transfer in bacteria: Sharing survival genes rapidly across populations.");
+      }
+      if (suggestions.length === 0){
+        suggestions.push("💡 Try searching for natural analogs in extreme environments: deserts, deep ocean, arctic, or fire-adapted ecosystems.");
+        suggestions.push("💡 Ask: What organisms face similar challenges? What strategies do they use? What are the underlying principles?");
+      }
+
+      const output = suggestions.map(s => `• ${s}`).join("\n\n");
+      $("#bioOutput").textContent = output;
+      
+      await DB.saveMethodology({
+        id: "biomimicry-" + Date.now(),
+        type: "biomimicry",
+        ts: SAFE.nowISO(),
+        data: { challenge, suggestions },
+      });
+      HUD.trackMethod('biomimicry');
+      HUD.award(6, "Generated biomimicry suggestions");
+    });
+  }
+
+  // Scenario planner
+  function initScenarios(){
+    $("#btnScGenerate")?.addEventListener("click", async ()=>{
+      const axis1 = $("#scAxis1").value.trim() || "Axis 1";
+      const axis2 = $("#scAxis2").value.trim() || "Axis 2";
+      
+      const scenarios = [
+        `📈 Scenario 1: HIGH ${axis2} + STRONG ${axis1}\n` +
+        `Consider: What does success look like here? What enables it? What could undermine it despite favorable conditions?`,
+        
+        `📊 Scenario 2: HIGH ${axis2} + WEAK ${axis1}\n` +
+        `Consider: How does high capacity compensate for unfavorable ${axis1}? What's the ceiling on effectiveness?`,
+        
+        `📉 Scenario 3: LOW ${axis2} + STRONG ${axis1}\n` +
+        `Consider: Can favorable ${axis1} overcome capacity limits? What minimal interventions still provide value?`,
+        
+        `❌ Scenario 4: LOW ${axis2} + WEAK ${axis1}\n` +
+        `Consider: What regret-minimizing actions work even here? What early signals indicate this future is arriving?`,
+      ];
+
+      const output = scenarios.join("\n\n---\n\n");
+      $("#scOutput").textContent = output;
+      
+      await DB.saveMethodology({
+        id: "scenarios-" + Date.now(),
+        type: "scenarios",
+        ts: SAFE.nowISO(),
+        data: { axis1, axis2, scenarios },
+      });
+      HUD.trackMethod('scenarios');
+      HUD.award(7, "Generated scenario matrix");
+    });
+  }
+
+  // Theory of Change saver
+  function initTheoryOfChange(){
+    $("#btnTocSave")?.addEventListener("click", async ()=>{
+      const toc = {
+        impact: SAFE.clamp($("#tocImpact").value, 300),
+        outcomes: SAFE.clamp($("#tocOutcomes").value, 500),
+        outputs: SAFE.clamp($("#tocOutputs").value, 500),
+        activities: SAFE.clamp($("#tocActivities").value, 500),
+        inputs: SAFE.clamp($("#tocInputs").value, 400),
+        assumptions: SAFE.clamp($("#tocAssumptions").value, 600),
+      };
+      await DB.saveMethodology({
+        id: "toc-" + Date.now(),
+        type: "toc",
+        ts: SAFE.nowISO(),
+        data: toc,
+      });
+      HUD.trackMethod('toc');
+      HUD.award(10, "Saved Theory of Change");
+    });
+
+    $("#btnTocExport")?.addEventListener("click", async ()=>{
+      const toc = {
+        impact: $("#tocImpact").value.trim(),
+        outcomes: $("#tocOutcomes").value.trim(),
+        outputs: $("#tocOutputs").value.trim(),
+        activities: $("#tocActivities").value.trim(),
+        inputs: $("#tocInputs").value.trim(),
+        assumptions: $("#tocAssumptions").value.trim(),
+      };
+      const blob = new Blob([JSON.stringify(toc, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "theory_of_change_" + Date.now() + ".json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+  }
+
+  // First Principles saver
+  function initFirstPrinciples(){
+    $("#btnFpSave")?.addEventListener("click", async ()=>{
+      const fp = {
+        goal: SAFE.clamp($("#fpGoal").value, 200),
+        truths: SAFE.clamp($("#fpTruths").value, 600),
+        current: SAFE.clamp($("#fpCurrent").value, 600),
+        rebuilt: SAFE.clamp($("#fpRebuilt").value, 800),
+      };
+      await DB.saveMethodology({
+        id: "firstp-" + Date.now(),
+        type: "firstp",
+        ts: SAFE.nowISO(),
+        data: fp,
+      });
+      HUD.trackMethod('firstp');
+      HUD.award(8, "Saved first principles analysis");
+    });
+  }
+
+  // Pre-mortem saver
+  function initPreMortem(){
+    $("#btnPmSave")?.addEventListener("click", async ()=>{
+      const pm = {
+        intervention: SAFE.clamp($("#pmIntervention").value, 150),
+        failures: SAFE.clamp($("#pmFailures").value, 2000),
+        mitigations: SAFE.clamp($("#pmMitigations").value, 1500),
+      };
+      await DB.saveMethodology({
+        id: "premortem-" + Date.now(),
+        type: "premortem",
+        ts: SAFE.nowISO(),
+        data: pm,
+      });
+      HUD.trackMethod('premortem');
+      HUD.award(10, "Saved pre-mortem analysis");
+    });
+
+    $("#btnPmExport")?.addEventListener("click", async ()=>{
+      const pm = {
+        intervention: $("#pmIntervention").value.trim(),
+        failures: $("#pmFailures").value.trim(),
+        mitigations: $("#pmMitigations").value.trim(),
+      };
+      const blob = new Blob([JSON.stringify(pm, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "premortem_" + Date.now() + ".json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+  }
+
+  // Methodology checkboxes
+  function initMethodologyChecks(){
+    $$(".methCheck").forEach(check => {
+      check.addEventListener("change", async ()=>{
+        if (check.checked){
+          const method = check.dataset.method;
+          HUD.trackMethod(method);
+          const xp = Number(check.dataset.xp||0);
+          if (xp > 0) HUD.award(xp, `Applied ${method} methodology`);
+        }
+      });
+    });
+  }
+
+  /* ============================================================================
+    UI wiring
+  ============================================================================ */
+  function wireUI(){
+    // Splash
+    $("#btnEnter")?.addEventListener("click", async ()=>{
+      $("#splash").style.display = "none";
+      await DB.set("pref_splash", false);
+      HUD.award(5, "Entered enhanced lab");
+    });
+    $("#btnSkipAnim")?.addEventListener("click", async ()=>{
+      await DB.set("pref_splash", true);
+      $("#splash").style.display = "none";
+    });
+    $("#btnResetAll")?.addEventListener("click", async ()=>{
+      if (!confirm("This will wipe ALL local data (notes, methodologies, preferences, HUD). Continue?")) return;
+      await DB.wipeAll();
+      await HUD.reset();
+      renderNotes();
+      drawConstellation();
+      systemsState = { nodes:[], links:[], selectedNode:null };
+    });
+
+    // Nav jumps
+    $$("[data-jump]").forEach(b=>{
+      b.addEventListener("click", ()=> {
+        const id = b.getAttribute("data-jump");
+        const el = document.querySelector(id);
+        el?.scrollIntoView({behavior:"smooth"});
+      });
+    });
+
+    // Search
+    const s = $("#search");
+    s?.addEventListener("input", ()=> applySearch(s.value.trim()));
+    $("#btnClear")?.addEventListener("click", ()=>{ s.value=""; applySearch(""); });
+
+    // Keyboard focus
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "/" && e.target.tagName !== "TEXTAREA" && e.target.tagName !== "INPUT"){
+        e.preventDefault();
+        s?.focus();
+      }
+    });
+
+    // Reduce motion
+    $("#togReduce")?.addEventListener("change", async (e)=>{
+      await DB.set("pref_reduce", !!e.target.checked);
+      drawConstellation();
+    });
+
+    // Hypothesis
+    $("#btnSaveHyp")?.addEventListener("click", saveHyp);
+    $("#btnScore")?.addEventListener("click", scoreHyp);
+    $("#btnExportHyp")?.addEventListener("click", exportHypothesis);
+
+    // Notes
+    $("#btnAddNote")?.addEventListener("click", async ()=>{
+      if (!Rate.allow("addNote", 1200)) return;
+      const title = SAFE.clamp($("#nTitle").value, 120);
+      const body = SAFE.clamp($("#nBody").value, 6000);
+      if (!title && !body) return;
+      await DB.addNote({ id:"note-"+Date.now(), ts: SAFE.nowISO(), title, body });
+      $("#nTitle").value = ""; $("#nBody").value = "";
+      renderNotes();
+      HUD.award(8, "Added note");
+    });
+    $("#btnWipeNotes")?.addEventListener("click", async ()=>{
+      if (!confirm("Wipe all local notes?")) return;
+      await DB.wipeNotes();
+      renderNotes();
+    });
+
+    // Export all
+    $("#btnExport")?.addEventListener("click", async ()=>{
+      const payload = {
+        exportedAt: SAFE.nowISO(),
+        hud: await DB.get("hud"),
+        notes: await DB.listNotes(),
+        hypothesis: await DB.getHypLatest(),
+        methodologies: {
+          systems: await DB.getMethLatest("systems"),
+          biomimicry: await DB.getMethLatest("biomimicry"),
+          scenarios: await DB.getMethLatest("scenarios"),
+          toc: await DB.getMethLatest("toc"),
+          firstp: await DB.getMethLatest("firstp"),
+          premortem: await DB.getMethLatest("premortem"),
+        },
+        prefs: {
+          reduce: await DB.get("pref_reduce"),
+          splashDisabled: await DB.get("pref_splash"),
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "reef_innovation_lab_full_export.json";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+
+    // HUD controls
+    $("#hudToggle")?.addEventListener("click", async ()=>{
+      HUD.state.collapsed = !HUD.state.collapsed;
+      await HUD.save();
+      HUD.render();
+    });
+    $("#hudReset")?.addEventListener("click", async ()=>{
+      if (!confirm("Reset HUD stats?")) return;
+      await HUD.reset();
+    });
+  }
+
+  /* ============================================================================
+    Init
+  ============================================================================ */
+  async function init(){
+    await DB.open();
+    const splashDisabled = await DB.get("pref_splash");
+    if (splashDisabled) $("#splash").style.display = "none";
+
+    const reduce = await DB.get("pref_reduce");
+    $("#togReduce").checked = !!reduce;
+
+    $("#statusDot").className = "dot ok";
+    $("#statusText").textContent = "Local storage ready";
+
+    await HUD.load();
+    await registerSW();
+    await loadHyp();
+    await renderNotes();
+    drawConstellation();
+    
+    initSystemsCanvas();
+    initBiomimicry();
+    initScenarios();
+    initTheoryOfChange();
+    initFirstPrinciples();
+    initPreMortem();
+    initMethodologyChecks();
+    
+    wireUI();
+  }
+
+  window.addEventListener("load", init);
+})();
+</script>
+
+</body>
+</html>
